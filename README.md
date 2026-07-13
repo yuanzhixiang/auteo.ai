@@ -1,13 +1,16 @@
 # auteo
 
-一个最小的 GPUI 桌面应用示例。
+A desktop Hello World example built with GPUI and `gpui-component`. It demonstrates theme
+initialization, the `Root` view, and an interactive primary button.
 
-项目固定使用 Rust 1.95；本机已有该工具链时，Cargo 会自动选择它。
+The project is pinned to Rust 1.95. Cargo selects this toolchain automatically when it is
+available locally.
 
-## 运行
+## Run
 
 ```bash
 cargo run
 ```
 
-首次构建需要下载并编译 GPUI 及其依赖，耗时会明显长于后续构建。
+The first build downloads and compiles GPUI and its dependencies, so it takes noticeably longer
+than subsequent builds.
