@@ -4,11 +4,11 @@ use gpui::{
 };
 use gpui_component::{Root, StyledExt, button::*};
 
-struct HelloWorld {
-    greeted: bool,
+struct AuteoApp {
+    started: bool,
 }
 
-impl Render for HelloWorld {
+impl Render for AuteoApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         div()
             .size_full()
@@ -16,18 +16,18 @@ impl Render for HelloWorld {
             .gap_4()
             .items_center()
             .justify_center()
-            .child(div().text_3xl().child("Hello, GPUI Component!"))
-            .child(if self.greeted {
-                "The button works. Welcome to native Rust UI."
+            .child(div().text_3xl().child("Auteo"))
+            .child(if self.started {
+                "Auteo is ready for your next cut."
             } else {
-                "This Hello World is rendered with gpui-component."
+                "AI video editing, built for your creative flow."
             })
             .child(
-                Button::new("say-hello")
+                Button::new("get-started")
                     .primary()
-                    .label(if self.greeted { "Hello!" } else { "Say hello" })
+                    .label(if self.started { "Ready" } else { "Get started" })
                     .on_click(cx.listener(|this, _, _, cx| {
-                        this.greeted = true;
+                        this.started = true;
                         cx.notify();
                     })),
             )
@@ -41,17 +41,18 @@ fn main() {
         cx.open_window(
             WindowOptions {
                 titlebar: Some(TitlebarOptions {
+                    title: Some("Auteo".into()),
                     appears_transparent: true,
                     ..Default::default()
                 }),
                 ..Default::default()
             },
             |window, cx| {
-                let hello_world = cx.new(|_| HelloWorld { greeted: false });
-                cx.new(|cx| Root::new(hello_world, window, cx))
+                let auteo = cx.new(|_| AuteoApp { started: false });
+                cx.new(|cx| Root::new(auteo, window, cx))
             },
         )
-        .expect("failed to open the GPUI Component window");
+        .expect("failed to open the Auteo window");
 
         cx.activate(true);
     });
