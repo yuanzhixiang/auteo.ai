@@ -3,6 +3,7 @@ name = "auteo"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.95"
+license = "Apache-2.0"
 
 [dependencies]
 gpui = "0.2.2"
