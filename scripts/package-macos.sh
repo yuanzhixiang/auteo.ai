@@ -35,6 +35,9 @@ iconutil -c icns "$ICONSET_DIR" -o "$CONTENTS_DIR/Resources/Auteo.icns"
 
 cp "$ROOT_DIR/target/release/auteo" "$CONTENTS_DIR/MacOS/Auteo"
 cp "$ROOT_DIR/packaging/macos/Info.plist" "$CONTENTS_DIR/Info.plist"
+mkdir -p "$CONTENTS_DIR/Resources/Legal"
+cp "$ROOT_DIR/LICENSE" "$CONTENTS_DIR/Resources/Legal/LICENSE"
+cp "$ROOT_DIR/THIRD_PARTY_LICENSES.html" "$CONTENTS_DIR/Resources/Legal/THIRD_PARTY_LICENSES.html"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$CONTENTS_DIR/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$CONTENTS_DIR/Info.plist"
 

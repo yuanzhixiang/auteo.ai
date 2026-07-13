@@ -32,3 +32,8 @@ identity and notarize the resulting app with Apple:
 CODESIGN_IDENTITY="Developer ID Application: Example Company (TEAMID)" \
   ./scripts/package-macos.sh
 ```
+
+## License
+
+Auteo is licensed under the [Apache License 2.0](LICENSE). Third-party components remain subject to
+the licenses listed in [THIRD_PARTY_LICENSES.html](THIRD_PARTY_LICENSES.html).
