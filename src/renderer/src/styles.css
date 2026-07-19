@@ -112,9 +112,72 @@ body {
   text-align: center;
 }
 
-.utterance-preview {
-  max-width: 640px;
+.ready-layout {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  min-height: 0;
+}
+
+.ready-video {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.video-player {
+  width: 100%;
+  background: black;
+  border-radius: 8px;
+  max-height: 70vh;
+}
+
+.ready-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
   opacity: 0.85;
+}
+
+.subtitle-list {
+  flex: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  border-left: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.subtitle-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.subtitle-item:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.subtitle-active {
+  background: color-mix(in srgb, #338cff 18%, transparent);
+}
+
+.subtitle-time {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  opacity: 0.6;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.subtitle-text {
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .settings-page {

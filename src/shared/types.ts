@@ -50,4 +50,6 @@ export interface AuteoApi {
   transcribeVideo(videoPath: string): Promise<Transcript>
   /** Subscribe to transcription progress. Returns an unsubscribe function. */
   onTranscribeProgress(callback: (progress: TranscribeProgress) => void): () => void
+  /** Register a local video for playback; returns an auteo-media:// URL. */
+  registerMedia(videoPath: string): Promise<string>
 }

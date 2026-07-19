@@ -1,24 +1,33 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { JSX } from 'react'
-import type { TranscribePhase, Transcript } from '../../shared/types'
+import type { TranscribePhase, Transcript, Utterance } from '../../shared/types'
 import DropZone from './components/DropZone'
 import SettingsPage from './components/SettingsPage'
+import SubtitleList from './components/SubtitleList'
+import VideoPlayer from './components/VideoPlayer'
 
 type View = 'workbench' | 'settings'
 
 type WorkbenchState =
   | { kind: 'idle' }
   | { kind: 'working'; videoPath: string; phase: TranscribePhase }
-  | { kind: 'ready'; transcript: Transcript }
+  | { kind: 'ready'; transcript: Transcript; mediaUrl: string }
   | { kind: 'error'; videoPath: string; message: string; apiKeyProblem: boolean }
 
 function describePhase(phase: TranscribePhase): string {
   return phase === 'extracting' ? 'Extracting audio…' : 'Transcribing…'
 }
 
+function findActiveUtterance(utterances: Utterance[], timeMs: number): string | null {
+  const active = utterances.find((utterance) => timeMs >= utterance.start && timeMs < utterance.end)
+  return active ? active.id : null
+}
+
 export default function App(): JSX.Element {
   const [view, setView] = useState<View>('workbench')
   const [state, setState] = useState<WorkbenchState>({ kind: 'idle' })
+  const [activeUtteranceId, setActiveUtteranceId] = useState<string | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     return window.auteo.onTranscribeProgress((progress) => {
@@ -30,9 +39,11 @@ export default function App(): JSX.Element {
 
   const transcribe = async (videoPath: string): Promise<void> => {
     setState({ kind: 'working', videoPath, phase: 'extracting' })
+    setActiveUtteranceId(null)
     try {
       const transcript = await window.auteo.transcribeVideo(videoPath)
-      setState({ kind: 'ready', transcript })
+      const mediaUrl = await window.auteo.registerMedia(videoPath)
+      setState({ kind: 'ready', transcript, mediaUrl })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       setState({
@@ -42,6 +53,13 @@ export default function App(): JSX.Element {
         apiKeyProblem: message.includes('API_KEY_')
       })
     }
+  }
+
+  const seekTo = (utterance: Utterance): void => {
+    const video = videoRef.current
+    if (!video) return
+    video.currentTime = utterance.start / 1000
+    void video.play()
   }
 
   return (
@@ -83,19 +101,28 @@ export default function App(): JSX.Element {
             <button onClick={() => setState({ kind: 'idle' })}>Choose another video</button>
           </div>
         ) : (
-          <div className="workbench">
-            <p className="video-path">{state.transcript.sourcePath}</p>
-            <p>
-              {state.transcript.utterances.length} utterances ·{' '}
-              {Math.round(state.transcript.audioDurationMs / 1000)}s
-            </p>
-            <div className="utterance-preview">
-              {state.transcript.utterances.slice(0, 5).map((utterance) => (
-                <p key={utterance.id}>{utterance.text}</p>
-              ))}
+          <div className="ready-layout">
+            <div className="ready-video">
+              <VideoPlayer
+                ref={videoRef}
+                src={state.mediaUrl}
+                onTimeUpdate={(timeMs) =>
+                  setActiveUtteranceId(findActiveUtterance(state.transcript.utterances, timeMs))
+                }
+              />
+              <div className="ready-toolbar">
+                <span>
+                  {state.transcript.utterances.length} utterances ·{' '}
+                  {Math.round(state.transcript.audioDurationMs / 1000)}s
+                </span>
+                <button onClick={() => setState({ kind: 'idle' })}>Choose another video</button>
+              </div>
             </div>
-            <p className="placeholder">Player and subtitle list land in the next step.</p>
-            <button onClick={() => setState({ kind: 'idle' })}>Choose another video</button>
+            <SubtitleList
+              utterances={state.transcript.utterances}
+              activeId={activeUtteranceId}
+              onSelect={seekTo}
+            />
           </div>
         )}
       </main>
