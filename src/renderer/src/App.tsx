@@ -27,6 +27,7 @@ export default function App(): JSX.Element {
   const [view, setView] = useState<View>('workbench')
   const [state, setState] = useState<WorkbenchState>({ kind: 'idle' })
   const [activeUtteranceId, setActiveUtteranceId] = useState<string | null>(null)
+  const [exportMessage, setExportMessage] = useState('')
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -60,6 +61,16 @@ export default function App(): JSX.Element {
     if (!video) return
     video.currentTime = utterance.start / 1000
     void video.play()
+  }
+
+  const exportSrt = async (transcript: Transcript): Promise<void> => {
+    setExportMessage('')
+    try {
+      const result = await window.auteo.exportSrt(transcript)
+      if (result.savedPath) setExportMessage(`Saved to ${result.savedPath}`)
+    } catch (error) {
+      setExportMessage(error instanceof Error ? error.message : 'Export failed.')
+    }
   }
 
   return (
@@ -115,8 +126,12 @@ export default function App(): JSX.Element {
                   {state.transcript.utterances.length} utterances ·{' '}
                   {Math.round(state.transcript.audioDurationMs / 1000)}s
                 </span>
-                <button onClick={() => setState({ kind: 'idle' })}>Choose another video</button>
+                <div className="ready-actions">
+                  <button onClick={() => void exportSrt(state.transcript)}>Export SRT</button>
+                  <button onClick={() => setState({ kind: 'idle' })}>Choose another video</button>
+                </div>
               </div>
+              {exportMessage !== '' && <p className="export-message">{exportMessage}</p>}
             </div>
             <SubtitleList
               utterances={state.transcript.utterances}

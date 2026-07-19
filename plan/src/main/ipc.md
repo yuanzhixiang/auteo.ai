@@ -13,7 +13,5 @@
 | `transcribe:run` | videoPath → `Transcript`：查 key（缺失抛 `API_KEY_MISSING`）→ extractAudio → transcribeAudio，finally 删临时音频；过程中经 `transcribe:progress` 推送阶段 |
 | `transcribe:progress`（main→renderer send） | `TranscribeProgress { phase }` |
 | `media:register` | videoPath → `auteo-media://` URL（media.ts 白名单注册） |
+| `export:srt` | `Transcript` → 保存对话框（默认名 `<源文件名>.srt`）→ 写入 `toSrt` 结果；取消返回 `{}` |
 
-## 待扩展（后续步骤）
-
-- `export:srt`（导出）

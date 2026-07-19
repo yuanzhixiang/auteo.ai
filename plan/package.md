@@ -9,6 +9,7 @@
 - `dev`：electron-vite 开发模式（renderer HMR，main/preload 改动自动重启）
 - `build`：electron-vite 产物构建到 `out/`
 - `typecheck`：对 node 侧（main/preload/shared）与 web 侧（renderer）分别跑 `tsc --noEmit`
+- `test`：node:test 跑 `src/shared/*.test.ts`（`--experimental-strip-types`，Node 22 原生执行 TS，无需测试框架依赖）
 
 ## 依赖策略（许可证治理，见 plan/README.md）
 
