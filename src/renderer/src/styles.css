@@ -142,6 +142,18 @@ body {
   opacity: 0.85;
 }
 
+.ready-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.export-message {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.7;
+  word-break: break-all;
+}
+
 .subtitle-list {
   flex: 2;
   margin: 0;

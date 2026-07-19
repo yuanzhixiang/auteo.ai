@@ -7,6 +7,7 @@ const api: AuteoApi = {
   getPathForFile: (file) => webUtils.getPathForFile(file),
   transcribeVideo: (videoPath) => ipcRenderer.invoke('transcribe:run', videoPath),
   registerMedia: (videoPath) => ipcRenderer.invoke('media:register', videoPath),
+  exportSrt: (transcript) => ipcRenderer.invoke('export:srt', transcript),
   onTranscribeProgress: (callback) => {
     const listener = (_event: unknown, progress: TranscribeProgress): void => callback(progress)
     ipcRenderer.on('transcribe:progress', listener)
