@@ -60,6 +60,52 @@ body {
   opacity: 0.6;
 }
 
+.drop-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 2px dashed color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 12px;
+}
+
+.drop-zone-active {
+  border-color: #338cff;
+  background: color-mix(in srgb, #338cff 8%, transparent);
+}
+
+.drop-zone-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.drop-zone-hint {
+  margin: 0;
+  opacity: 0.6;
+}
+
+.drop-zone-error {
+  color: #e5484d;
+}
+
+.workbench {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: auto;
+}
+
+.video-path {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  opacity: 0.8;
+  word-break: break-all;
+}
+
 .settings-page {
   max-width: 560px;
 }

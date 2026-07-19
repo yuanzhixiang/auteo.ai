@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import type { JSX } from 'react'
+import DropZone from './components/DropZone'
 import SettingsPage from './components/SettingsPage'
 
 type View = 'workbench' | 'settings'
 
 export default function App(): JSX.Element {
   const [view, setView] = useState<View>('workbench')
+  const [videoPath, setVideoPath] = useState<string | null>(null)
 
   return (
     <div className="app-shell">
@@ -28,7 +30,15 @@ export default function App(): JSX.Element {
       </header>
       <main className="app-main">
         {view === 'workbench' ? (
-          <p className="placeholder">Drop a video to get started. (Coming in the next step.)</p>
+          videoPath === null ? (
+            <DropZone onSelect={setVideoPath} />
+          ) : (
+            <div className="workbench">
+              <p className="video-path">{videoPath}</p>
+              <p className="placeholder">Transcription pipeline lands in the next step.</p>
+              <button onClick={() => setVideoPath(null)}>Choose another video</button>
+            </div>
+          )
         ) : (
           <SettingsPage />
         )}

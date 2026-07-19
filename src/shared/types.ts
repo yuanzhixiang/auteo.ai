@@ -11,4 +11,6 @@ export interface SettingsStatus {
 export interface AuteoApi {
   getSettingsStatus(): Promise<SettingsStatus>
   setApiKey(key: string): Promise<void>
+  /** Resolve a dropped File to its filesystem path (webUtils.getPathForFile). */
+  getPathForFile(file: File): string
 }
