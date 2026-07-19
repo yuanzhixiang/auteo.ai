@@ -1,0 +1,24 @@
+name: license-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Runtime dependencies must stay on permissive licenses. Any license
+      # outside the allow list (including GPL/AGPL/LGPL/MPL/unknown) fails
+      # the build. Extending the list requires a manual review recorded in
+      # plan/.github/workflows/license-check.md.
+      - run: >
+          npx -y license-checker --production --excludePrivatePackages
+          --onlyAllow "MIT;ISC;BSD-2-Clause;BSD-3-Clause;0BSD;Apache-2.0"

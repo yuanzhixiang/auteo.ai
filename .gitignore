@@ -4,3 +4,5 @@ release/
 vendor/ffmpeg/
 *.local
 .DS_Store
+
+.ffmpeg-build/
