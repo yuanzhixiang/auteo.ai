@@ -9,6 +9,11 @@ export interface Word {
   word: string
   start: number
   end: number
+  /**
+   * Marked by LLM post-processing in a later milestone; the ASR confidence
+   * field is unusable (always 0), so this is always false for now.
+   */
+  suspect: boolean
 }
 
 export interface Utterance {
