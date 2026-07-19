@@ -32,12 +32,15 @@ function mapUtterances(response: VolcanoResponse): Utterance[] {
     end: utterance.end_time,
     text: utterance.text,
     speakerId: utterance.additions?.speaker,
-    words: (utterance.words ?? []).map((word) => ({
-      word: word.text,
-      start: word.start_time,
-      end: word.end_time,
-      suspect: false
-    }))
+    words: (utterance.words ?? [])
+      // The service emits spacer tokens (" " with -1 timestamps) between
+      // Latin and CJK runs; they are typography, not timed speech.
+      .filter((word) => word.text.trim() !== '' && word.start_time >= 0 && word.end_time >= 0)
+      .map((word) => ({
+        word: word.text,
+        start: word.start_time,
+        end: word.end_time
+      }))
   }))
 }
 
