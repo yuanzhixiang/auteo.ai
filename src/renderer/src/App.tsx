@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { JSX } from 'react'
 import { replaceAllText, setUtteranceText } from '../../shared/transcript'
-import type { TranscribePhase, Transcript, Utterance } from '../../shared/types'
+import type { ProjectSummary, TranscribePhase, Transcript, Utterance } from '../../shared/types'
 import DropZone from './components/DropZone'
+import ProjectHistory from './components/ProjectHistory'
 import SettingsPage from './components/SettingsPage'
 import SubtitleList from './components/SubtitleList'
 import VideoPlayer from './components/VideoPlayer'
@@ -24,6 +25,10 @@ function findActiveUtterance(utterances: Utterance[], timeMs: number): string | 
   return active ? active.id : null
 }
 
+function stripIpcErrorPrefix(message: string): string {
+  return message.replace(/^Error invoking remote method '[^']+': Error: /, '')
+}
+
 const buttonClass =
   'cursor-pointer rounded-md border border-black/25 px-3 py-1.5 text-sm dark:border-white/25'
 const inputClass =
@@ -32,6 +37,7 @@ const inputClass =
 export default function App(): JSX.Element {
   const [view, setView] = useState<View>('workbench')
   const [state, setState] = useState<WorkbenchState>({ kind: 'idle' })
+  const [projects, setProjects] = useState<ProjectSummary[]>([])
   const [activeUtteranceId, setActiveUtteranceId] = useState<string | null>(null)
   const [exportMessage, setExportMessage] = useState('')
   const [undoSnapshot, setUndoSnapshot] = useState<Transcript | null>(null)
@@ -48,6 +54,14 @@ export default function App(): JSX.Element {
     })
   }, [])
 
+  const refreshProjects = useCallback(async () => {
+    setProjects(await window.auteo.listProjects())
+  }, [])
+
+  useEffect(() => {
+    if (view === 'workbench' && state.kind === 'idle') void refreshProjects()
+  }, [view, state.kind, refreshProjects])
+
   const resetEditingState = (): void => {
     setUndoSnapshot(null)
     setFindText('')
@@ -56,12 +70,12 @@ export default function App(): JSX.Element {
     setExportMessage('')
   }
 
-  const transcribe = async (videoPath: string): Promise<void> => {
+  const transcribe = async (videoPath: string, force = false): Promise<void> => {
     setState({ kind: 'working', videoPath, phase: 'extracting' })
     setActiveUtteranceId(null)
     resetEditingState()
     try {
-      const transcript = await window.auteo.transcribeVideo(videoPath)
+      const transcript = await window.auteo.transcribeVideo(videoPath, force)
       const mediaUrl = await window.auteo.registerMedia(videoPath)
       setState({ kind: 'ready', transcript, mediaUrl })
     } catch (error) {
@@ -69,10 +83,31 @@ export default function App(): JSX.Element {
       setState({
         kind: 'error',
         videoPath,
-        message: message.replace(/^Error invoking remote method '[^']+': Error: /, ''),
+        message: stripIpcErrorPrefix(message),
         apiKeyProblem: message.includes('API_KEY_')
       })
     }
+  }
+
+  const openProject = async (id: string): Promise<void> => {
+    setActiveUtteranceId(null)
+    resetEditingState()
+    try {
+      const result = await window.auteo.openProject(id)
+      setState({ kind: 'ready', transcript: result.transcript, mediaUrl: result.mediaUrl })
+      if (result.stale) {
+        setReplaceMessage('Video file has changed — consider Re-transcribe.')
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      setReplaceMessage(stripIpcErrorPrefix(message))
+      await refreshProjects()
+    }
+  }
+
+  const deleteProject = async (id: string): Promise<void> => {
+    await window.auteo.deleteProject(id)
+    await refreshProjects()
   }
 
   const seekTo = (utterance: Utterance): void => {
@@ -82,40 +117,36 @@ export default function App(): JSX.Element {
     void video.play()
   }
 
-  const updateTranscript = (mutate: (transcript: Transcript) => Transcript): void => {
-    setState((current) => {
-      if (current.kind !== 'ready') return current
-      setUndoSnapshot(current.transcript)
-      return { ...current, transcript: mutate(current.transcript) }
-    })
+  const applyTranscript = (previous: Transcript, next: Transcript): void => {
+    setUndoSnapshot(previous)
+    setState((current) => (current.kind === 'ready' ? { ...current, transcript: next } : current))
+    void window.auteo.saveProject(next)
   }
 
   const handleEditSave = (id: string, text: string): void => {
+    if (state.kind !== 'ready') return
     setReplaceMessage('')
-    updateTranscript((transcript) => setUtteranceText(transcript, id, text))
+    applyTranscript(state.transcript, setUtteranceText(state.transcript, id, text))
   }
 
   const handleReplaceAll = (): void => {
-    setState((current) => {
-      if (current.kind !== 'ready') return current
-      const { transcript, count } = replaceAllText(current.transcript, findText, replaceText)
-      if (count === 0) {
-        setReplaceMessage('No matches.')
-        return current
-      }
-      setUndoSnapshot(current.transcript)
-      setReplaceMessage(`Replaced ${count} occurrence${count === 1 ? '' : 's'}.`)
-      return { ...current, transcript }
-    })
+    if (state.kind !== 'ready') return
+    const { transcript, count } = replaceAllText(state.transcript, findText, replaceText)
+    if (count === 0) {
+      setReplaceMessage('No matches.')
+      return
+    }
+    setReplaceMessage(`Replaced ${count} occurrence${count === 1 ? '' : 's'}.`)
+    applyTranscript(state.transcript, transcript)
   }
 
   const handleUndo = (): void => {
-    setState((current) => {
-      if (current.kind !== 'ready' || undoSnapshot === null) return current
-      setUndoSnapshot(null)
-      setReplaceMessage('Undone.')
-      return { ...current, transcript: undoSnapshot }
-    })
+    if (state.kind !== 'ready' || undoSnapshot === null) return
+    const restored = undoSnapshot
+    setUndoSnapshot(null)
+    setReplaceMessage('Undone.')
+    setState((current) => (current.kind === 'ready' ? { ...current, transcript: restored } : current))
+    void window.auteo.saveProject(restored)
   }
 
   const exportSrt = async (transcript: Transcript): Promise<void> => {
@@ -151,7 +182,17 @@ export default function App(): JSX.Element {
         {view === 'settings' ? (
           <SettingsPage />
         ) : state.kind === 'idle' ? (
-          <DropZone onSelect={(videoPath) => void transcribe(videoPath)} />
+          <div className="flex flex-1 flex-col">
+            <DropZone onSelect={(videoPath) => void transcribe(videoPath)} />
+            {replaceMessage !== '' && (
+              <p className="mt-2 mb-0 text-xs text-red-500">{replaceMessage}</p>
+            )}
+            <ProjectHistory
+              projects={projects}
+              onOpen={(id) => void openProject(id)}
+              onDelete={(id) => void deleteProject(id)}
+            />
+          </div>
         ) : state.kind === 'working' ? (
           <div className="m-auto flex flex-col items-center gap-2">
             <p className="font-mono text-xs break-all opacity-80">{state.videoPath}</p>
@@ -192,6 +233,12 @@ export default function App(): JSX.Element {
                 <div className="flex gap-2">
                   <button className={buttonClass} onClick={() => void exportSrt(state.transcript)}>
                     Export SRT
+                  </button>
+                  <button
+                    className={buttonClass}
+                    onClick={() => void transcribe(state.transcript.sourcePath, true)}
+                  >
+                    Re-transcribe
                   </button>
                   <button className={buttonClass} onClick={() => setState({ kind: 'idle' })}>
                     Choose another video

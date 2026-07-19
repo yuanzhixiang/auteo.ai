@@ -38,6 +38,24 @@ export interface TranscribeProgress {
   phase: TranscribePhase
 }
 
+export interface ProjectSummary {
+  id: string
+  videoPath: string
+  fileName: string
+  updatedAt: number
+  utteranceCount: number
+  audioDurationMs: number
+  /** False when the source video no longer exists on disk. */
+  fileExists: boolean
+}
+
+export interface OpenProjectResult {
+  transcript: Transcript
+  mediaUrl: string
+  /** True when the video file changed since the transcript was saved. */
+  stale: boolean
+}
+
 /**
  * API exposed to the renderer through the preload bridge.
  * The plaintext API key never crosses this boundary.
@@ -47,13 +65,19 @@ export interface AuteoApi {
   setApiKey(key: string): Promise<void>
   /** Resolve a dropped File to its filesystem path (webUtils.getPathForFile). */
   getPathForFile(file: File): string
-  transcribeVideo(videoPath: string): Promise<Transcript>
+  /** Transcribe a video; reuses the saved project unless force is true. */
+  transcribeVideo(videoPath: string, force?: boolean): Promise<Transcript>
   /** Subscribe to transcription progress. Returns an unsubscribe function. */
   onTranscribeProgress(callback: (progress: TranscribeProgress) => void): () => void
   /** Register a local video for playback; returns an auteo-media:// URL. */
   registerMedia(videoPath: string): Promise<string>
   /** Export the transcript as SRT via a save dialog. Empty result if cancelled. */
   exportSrt(transcript: Transcript): Promise<ExportSrtResult>
+  listProjects(): Promise<ProjectSummary[]>
+  openProject(id: string): Promise<OpenProjectResult>
+  /** Persist the current transcript (called after every edit mutation). */
+  saveProject(transcript: Transcript): Promise<void>
+  deleteProject(id: string): Promise<void>
 }
 
 export interface ExportSrtResult {
