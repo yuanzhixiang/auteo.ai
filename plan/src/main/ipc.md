@@ -10,8 +10,9 @@
 |---|---|
 | `settings:get-status` | 返回 `SettingsStatus`（不含明文 key） |
 | `settings:set-api-key` | 加密保存 API key |
+| `transcribe:run` | videoPath → `Transcript`：查 key（缺失抛 `API_KEY_MISSING`）→ extractAudio → transcribeAudio，finally 删临时音频；过程中经 `transcribe:progress` 推送阶段 |
+| `transcribe:progress`（main→renderer send） | `TranscribeProgress { phase }` |
 
 ## 待扩展（后续步骤）
 
-- `transcribe:run` / `transcribe:progress`（转写链路）
 - `export:srt`、`media:register`（导出与播放）
