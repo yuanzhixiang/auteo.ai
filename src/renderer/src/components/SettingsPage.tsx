@@ -28,31 +28,38 @@ export default function SettingsPage(): JSX.Element {
   }
 
   return (
-    <section className="settings-page">
-      <h2>Settings</h2>
-      <div className="settings-field">
-        <label htmlFor="volc-api-key">Volcano Engine API key</label>
-        <p className="settings-status">
+    <section className="max-w-[560px]">
+      <h2 className="text-xl font-semibold">Settings</h2>
+      <div className="mt-3">
+        <label className="font-semibold" htmlFor="volc-api-key">
+          Volcano Engine API key
+        </label>
+        <p className="my-1.5 opacity-75">
           {status === null
             ? 'Checking…'
             : status.hasApiKey
               ? `Configured (…${status.apiKeyTail})`
               : 'Not configured'}
         </p>
-        <div className="settings-row">
+        <div className="flex gap-2">
           <input
             id="volc-api-key"
             type="password"
             placeholder="Paste your API key"
+            className="flex-1 rounded-md border border-black/25 bg-transparent px-2.5 py-2 dark:border-white/25"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
-          <button onClick={() => void save()} disabled={draft.trim() === ''}>
+          <button
+            className="cursor-pointer rounded-md bg-brand px-4 py-2 text-white disabled:cursor-default disabled:opacity-50"
+            onClick={() => void save()}
+            disabled={draft.trim() === ''}
+          >
             Save
           </button>
         </div>
-        {message !== '' && <p className="settings-message">{message}</p>}
-        <p className="settings-hint">
+        {message !== '' && <p className="mt-2 mb-0">{message}</p>}
+        <p className="mt-3 text-xs opacity-60">
           The key is encrypted with the operating system keychain and never leaves this device
           except to call the transcription API.
         </p>

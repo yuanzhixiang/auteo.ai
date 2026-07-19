@@ -27,18 +27,22 @@ export default function SubtitleList({
   }, [activeId])
 
   return (
-    <ol className="subtitle-list">
+    <ol className="m-0 flex-[2] list-none overflow-y-auto border-l border-black/15 p-0 dark:border-white/15">
       {utterances.map((utterance) => {
         const active = utterance.id === activeId
         return (
           <li
             key={utterance.id}
             ref={active ? activeRef : undefined}
-            className={active ? 'subtitle-item subtitle-active' : 'subtitle-item'}
+            className={`flex cursor-pointer gap-2.5 rounded-md px-3 py-2 ${
+              active ? 'bg-brand/20' : 'hover:bg-black/5 dark:hover:bg-white/10'
+            }`}
             onClick={() => onSelect(utterance)}
           >
-            <span className="subtitle-time">{formatTime(utterance.start)}</span>
-            <span className="subtitle-text">{utterance.text}</span>
+            <span className="shrink-0 pt-0.5 font-mono text-xs opacity-60">
+              {formatTime(utterance.start)}
+            </span>
+            <span className="text-sm leading-6">{utterance.text}</span>
           </li>
         )
       })}

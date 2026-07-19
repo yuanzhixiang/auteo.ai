@@ -36,7 +36,11 @@ export default function DropZone({ onSelect }: DropZoneProps): JSX.Element {
 
   return (
     <div
-      className={`drop-zone${dragging ? ' drop-zone-active' : ''}`}
+      className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed ${
+        dragging
+          ? 'border-brand bg-brand/10'
+          : 'border-black/30 dark:border-white/30'
+      }`}
       onDragOver={(event) => {
         event.preventDefault()
         setDragging(true)
@@ -44,9 +48,9 @@ export default function DropZone({ onSelect }: DropZoneProps): JSX.Element {
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
     >
-      <p className="drop-zone-title">Drop a video here</p>
-      <p className="drop-zone-hint">MP4, MOV, MKV, WebM…</p>
-      {error !== '' && <p className="drop-zone-error">{error}</p>}
+      <p className="m-0 text-lg font-semibold">Drop a video here</p>
+      <p className="m-0 opacity-60">MP4, MOV, MKV, WebM…</p>
+      {error !== '' && <p className="text-red-500">{error}</p>}
     </div>
   )
 }
