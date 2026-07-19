@@ -29,7 +29,7 @@ jobs:
       - name: Package (unsigned dmg)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npx electron-builder --mac dmg --arm64
+        run: npx electron-builder --mac dmg --arm64 --publish never
       - uses: actions/upload-artifact@v4
         with:
           name: auteo-mac-arm64
@@ -55,7 +55,7 @@ jobs:
       - run: npm run typecheck && npm test
       - run: npm run build
       - name: Package (unsigned nsis)
-        run: npx electron-builder --win nsis --x64
+        run: npx electron-builder --win nsis --x64 --publish never
       - uses: actions/upload-artifact@v4
         with:
           name: auteo-win-x64
