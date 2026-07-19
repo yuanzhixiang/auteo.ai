@@ -1,3 +1,6 @@
-/target
-/dist
+node_modules/
+out/
+release/
+vendor/ffmpeg/
+*.local
 .DS_Store
