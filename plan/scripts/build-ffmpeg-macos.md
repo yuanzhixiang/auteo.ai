@@ -13,7 +13,15 @@
 
 ## 构建环境
 
-Homebrew 工具（只影响构建环境）：autoconf automake pkg-config meson ninja。arm64 无需 nasm。已知坑：lame 3.100 的 config.guess 太老不识别 arm64-apple，需显式 `--build=aarch64-apple-darwin`。
+Homebrew 工具（只影响构建环境）：autoconf automake pkg-config meson ninja。arm64 无需 nasm。
+
+## 踩坑记录（2026-07-19，均已固化进脚本）
+
+1. lame 3.100 的 config.guess 太老不识别 arm64-apple → 显式 `--build=aarch64-apple-darwin`
+2. `PKG_CONFIG_PATH` 会让 configure 自动探测到 Homebrew 的 SDL2/xcb/libunibreak 并动态链接（自检抓到）→ 改用 **`PKG_CONFIG_LIBDIR`** 把 pkg-config 锁死在 deps 前缀
+3. LIBDIR 隔离后系统 zlib.pc 不可见，freetype2.pc 的 zlib 依赖导致 libass configure 失败 → freetype `--with-zlib=no` 用其内置 zlib
+4. tar 重复解压不清理旧目录会让上一轮的生成物（旧 freetype2.pc 等）泄漏进下一轮 → fetch 改为**解压前删除源码目录**（幂等构建）
+5. 自检必须在拷贝 vendor/ 之前跑，否则失败构建会把污染二进制留在 vendor
 
 ## 自检（任一失败即退出非零）
 
