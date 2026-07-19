@@ -1,39 +1,49 @@
 # Auteo
 
-Auteo is an AI video editor from [auteo.ai](https://auteo.ai). This repository currently contains
-the native desktop foundation built with GPUI and `gpui-component`.
+Auteo is an AI video editor from [auteo.ai](https://auteo.ai). This repository contains the
+Electron + TypeScript desktop application. The current milestone is the end-to-end skeleton of
+the subtitle proofreading workbench: drop a video, extract audio locally with the bundled
+ffmpeg, transcribe it with Volcano Engine ASR, browse the utterance list synced with playback,
+and export SRT.
 
-The project is pinned to Rust 1.95. Cargo selects this toolchain automatically when it is
-available locally.
-
-## Run
-
-```bash
-cargo run
-```
-
-The first build downloads and compiles GPUI and its dependencies, so it takes noticeably longer
-than subsequent builds.
-
-## Package for macOS
+## Development
 
 ```bash
-./scripts/package-macos.sh
+npm install
+npm run dev
 ```
 
-The package is written to `dist/Auteo-<version>-macos-<architecture>.dmg`. Open the DMG and drag
-Auteo into Applications.
+`npm run dev` starts electron-vite with hot reload for the renderer and automatic restarts for
+the main process.
 
-The script uses ad-hoc code signing by default, which is suitable for local installation and
-testing. For distribution outside the development machine, provide a Developer ID Application
-identity and notarize the resulting app with Apple:
+During development, if no self-built ffmpeg exists under `vendor/ffmpeg/`, the app falls back
+to the `ffmpeg` found on `PATH` (for example a Homebrew build). That fallback is for local
+development only — system builds are usually GPL-enabled and must never be shipped.
+
+## ffmpeg sidecar
+
+Auteo ships a self-built LGPL-only ffmpeg as a separate sidecar binary:
 
 ```bash
-CODESIGN_IDENTITY="Developer ID Application: Example Company (TEAMID)" \
-  ./scripts/package-macos.sh
+./scripts/build-ffmpeg-macos.sh   # builds into vendor/ffmpeg/darwin-arm64/
 ```
+
+The Windows binary is built by the `ffmpeg` GitHub Actions workflow (MSYS2, MediaFoundation
+encoders). Both artifacts are published as GitHub Release assets together with `SOURCES.md`,
+which fulfils the LGPL source-offer obligation.
+
+## Packaging
+
+```bash
+npm run build
+npx electron-builder --mac dmg --arm64   # unsigned local build
+```
+
+CI packaging for macOS and Windows lives in `.github/workflows/package.yml`.
 
 ## License
 
-Auteo is licensed under the [Apache License 2.0](LICENSE). Third-party components remain subject to
-the licenses listed in [THIRD_PARTY_LICENSES.html](THIRD_PARTY_LICENSES.html).
+Auteo is licensed under the [Apache License 2.0](LICENSE). Runtime npm dependencies are
+restricted to permissive licenses (MIT/ISC/BSD/Apache-2.0), enforced by the license-check
+workflow. The bundled ffmpeg sidecar is an LGPL build distributed as a separate program with
+its own license texts and source references.
