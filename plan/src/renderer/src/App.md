@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-顶栏（品牌 + Workbench/Settings 切换）+ 主区域。Workbench 视图当前为拖入提示占位（拖拽步骤替换）；Settings 视图为 SettingsPage。
+顶栏（品牌 + Workbench/Settings 切换）+ 主区域。Workbench 视图：未选文件时为 DropZone，选中后展示路径与占位提示（转写步骤替换为真实管线）；Settings 视图为 SettingsPage。
 
 ## 约束
 

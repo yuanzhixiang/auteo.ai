@@ -6,7 +6,9 @@ renderer 与 main 之间唯一的桥：通过 `contextBridge.exposeInMainWorld('
 
 ## 当前 API
 
-- `getSettingsStatus()` / `setApiKey(key)`：设置通道，实现为 `ipcRenderer.invoke` 转发；API 面类型定义在 `src/shared/types.ts` 的 `AuteoApi`
+- `getSettingsStatus()` / `setApiKey(key)`：设置通道，`ipcRenderer.invoke` 转发
+- `getPathForFile(file)`：`webUtils.getPathForFile` 同步转发（拖拽取路径的唯一途径）
+- API 面类型定义在 `src/shared/types.ts` 的 `AuteoApi`
 
 ## 约束与坑
 
