@@ -23,16 +23,20 @@ export PKG_CONFIG_LIBDIR="$DEPS/lib/pkgconfig"
 mkdir -p "$DEPS" "$SRC" "$OUT"
 
 fetch() {
-  local url="$1" name="$2"
+  # fetch <url> <tarball-name> <extracted-dir>: keeps downloaded tarballs,
+  # but always re-extracts into a clean directory so stale build artifacts
+  # from previous runs can never leak into the next configure.
+  local url="$1" name="$2" dir="$3"
   if [ ! -f "$SRC/$name" ]; then
     echo "==> Downloading $name"
     curl -L --fail --retry 3 -o "$SRC/$name" "$url"
   fi
+  rm -rf "${SRC:?}/$dir"
   tar -xf "$SRC/$name" -C "$SRC"
 }
 
 echo "==> freetype $FREETYPE_VERSION"
-fetch "$FREETYPE_URL" "freetype-$FREETYPE_VERSION.tar.xz"
+fetch "$FREETYPE_URL" "freetype-$FREETYPE_VERSION.tar.xz" "freetype-$FREETYPE_VERSION"
 (
   cd "$SRC/freetype-$FREETYPE_VERSION"
   ./configure --prefix="$DEPS" --disable-shared --enable-static \
@@ -42,7 +46,7 @@ fetch "$FREETYPE_URL" "freetype-$FREETYPE_VERSION.tar.xz"
 )
 
 echo "==> fribidi $FRIBIDI_VERSION"
-fetch "$FRIBIDI_URL" "fribidi-$FRIBIDI_VERSION.tar.xz"
+fetch "$FRIBIDI_URL" "fribidi-$FRIBIDI_VERSION.tar.xz" "fribidi-$FRIBIDI_VERSION"
 (
   cd "$SRC/fribidi-$FRIBIDI_VERSION"
   ./configure --prefix="$DEPS" --disable-shared --enable-static --disable-docs > /dev/null
@@ -51,7 +55,7 @@ fetch "$FRIBIDI_URL" "fribidi-$FRIBIDI_VERSION.tar.xz"
 )
 
 echo "==> harfbuzz $HARFBUZZ_VERSION"
-fetch "$HARFBUZZ_URL" "harfbuzz-$HARFBUZZ_VERSION.tar.xz"
+fetch "$HARFBUZZ_URL" "harfbuzz-$HARFBUZZ_VERSION.tar.xz" "harfbuzz-$HARFBUZZ_VERSION"
 (
   cd "$SRC/harfbuzz-$HARFBUZZ_VERSION"
   meson setup build --prefix="$DEPS" --default-library=static --buildtype=release \
@@ -63,7 +67,7 @@ fetch "$HARFBUZZ_URL" "harfbuzz-$HARFBUZZ_VERSION.tar.xz"
 )
 
 echo "==> libass $LIBASS_VERSION"
-fetch "$LIBASS_URL" "libass-$LIBASS_VERSION.tar.xz"
+fetch "$LIBASS_URL" "libass-$LIBASS_VERSION.tar.xz" "libass-$LIBASS_VERSION"
 (
   cd "$SRC/libass-$LIBASS_VERSION"
   # DirectWrite is the font provider on Windows; fontconfig stays off.
@@ -74,7 +78,7 @@ fetch "$LIBASS_URL" "libass-$LIBASS_VERSION.tar.xz"
 )
 
 echo "==> lame $LAME_VERSION"
-fetch "$LAME_URL" "lame-$LAME_VERSION.tar.gz"
+fetch "$LAME_URL" "lame-$LAME_VERSION.tar.gz" "lame-$LAME_VERSION"
 (
   cd "$SRC/lame-$LAME_VERSION"
   ./configure --prefix="$DEPS" --disable-shared --enable-static \
@@ -84,13 +88,13 @@ fetch "$LAME_URL" "lame-$LAME_VERSION.tar.gz"
 )
 
 echo "==> ffmpeg $FFMPEG_VERSION"
-fetch "$FFMPEG_URL" "ffmpeg-$FFMPEG_VERSION.tar.xz"
+fetch "$FFMPEG_URL" "ffmpeg-$FFMPEG_VERSION.tar.xz" "ffmpeg-$FFMPEG_VERSION"
 (
   cd "$SRC/ffmpeg-$FFMPEG_VERSION"
   ./configure --prefix="$BUILD/out" \
     --disable-gpl --disable-nonfree \
     --disable-shared --enable-static \
-    --disable-doc --disable-debug --disable-ffplay \
+    --disable-doc --disable-debug --disable-ffplay --disable-sdl2 \
     --enable-libass --enable-libfreetype --enable-libharfbuzz --enable-libfribidi \
     --enable-libmp3lame --enable-mediafoundation \
     --pkg-config-flags=--static \
@@ -116,16 +120,22 @@ if ldd "$FF" | grep -qi 'ucrt64/bin'; then
   exit 1
 fi
 
+# Capture outputs first: piping ffmpeg straight into grep -q trips pipefail
+# (grep exits on first match, ffmpeg dies with SIGPIPE).
+VERSION_OUT="$("$FF" -version)"
+ENCODERS_OUT="$("$FF" -hide_banner -encoders)"
+FILTERS_OUT="$("$FF" -hide_banner -filters)"
+
 echo "--- license flags"
-"$FF" -version | grep -q -- '--disable-gpl' || { echo 'FAIL: --disable-gpl missing' >&2; exit 1; }
-"$FF" -version | grep -q -- '--enable-gpl' && { echo 'FAIL: GPL enabled' >&2; exit 1; }
+grep -q -- '--disable-gpl' <<< "$VERSION_OUT" || { echo 'FAIL: --disable-gpl missing' >&2; exit 1; }
+grep -q -- '--enable-gpl' <<< "$VERSION_OUT" && { echo 'FAIL: GPL enabled' >&2; exit 1; }
 
 echo "--- encoders"
-"$FF" -hide_banner -encoders | grep -q h264_mf || { echo 'FAIL: h264_mf missing' >&2; exit 1; }
-"$FF" -hide_banner -encoders | grep -q libmp3lame || { echo 'FAIL: libmp3lame missing' >&2; exit 1; }
+grep -q h264_mf <<< "$ENCODERS_OUT" || { echo 'FAIL: h264_mf missing' >&2; exit 1; }
+grep -q libmp3lame <<< "$ENCODERS_OUT" || { echo 'FAIL: libmp3lame missing' >&2; exit 1; }
 
 echo "--- subtitles filter (libass)"
-"$FF" -hide_banner -filters | grep -q subtitles || { echo 'FAIL: subtitles filter missing' >&2; exit 1; }
+grep -q subtitles <<< "$FILTERS_OUT" || { echo 'FAIL: subtitles filter missing' >&2; exit 1; }
 
 cp "$BUILD/out/bin/ffmpeg.exe" "$BUILD/out/bin/ffprobe.exe" "$OUT/"
 cp "$SRC/ffmpeg-$FFMPEG_VERSION/COPYING.LGPLv2.1" "$OUT/"
