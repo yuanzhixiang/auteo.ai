@@ -23,7 +23,10 @@ SRC="$BUILD/src"
 OUT="$ROOT/vendor/ffmpeg/darwin-$ARCH"
 JOBS="$(sysctl -n hw.ncpu)"
 
-export PKG_CONFIG_PATH="$DEPS/lib/pkgconfig"
+# PKG_CONFIG_LIBDIR (not _PATH) restricts pkg-config to our static deps only,
+# so configure cannot auto-detect Homebrew libraries (SDL2, xcb, libunibreak…)
+# and link them dynamically. System zlib/iconv are header-detected and allowed.
+export PKG_CONFIG_LIBDIR="$DEPS/lib/pkgconfig"
 export MACOSX_DEPLOYMENT_TARGET=13.0
 
 mkdir -p "$DEPS" "$SRC" "$OUT"
@@ -42,7 +45,7 @@ fetch "$FREETYPE_URL" "freetype-$FREETYPE_VERSION.tar.xz"
 (
   cd "$SRC/freetype-$FREETYPE_VERSION"
   ./configure --prefix="$DEPS" --disable-shared --enable-static \
-    --with-harfbuzz=no --with-brotli=no --with-png=no --with-bzip2=no > /dev/null
+    --with-harfbuzz=no --with-brotli=no --with-png=no --with-bzip2=no --with-zlib=no > /dev/null
   make -j"$JOBS" > /dev/null
   make install > /dev/null
 )
@@ -105,24 +108,11 @@ fetch "$FFMPEG_URL" "ffmpeg-$FFMPEG_VERSION.tar.xz"
   make install > /dev/null
 )
 
-cp "$BUILD/out/bin/ffmpeg" "$BUILD/out/bin/ffprobe" "$OUT/"
-cp "$SRC/ffmpeg-$FFMPEG_VERSION/COPYING.LGPLv2.1" "$OUT/"
 
-{
-  echo "# ffmpeg sidecar sources"
-  echo
-  echo "This binary is an LGPL-only ffmpeg build. Corresponding sources:"
-  echo
-  echo "- ffmpeg $FFMPEG_VERSION — $FFMPEG_URL"
-  echo "- freetype $FREETYPE_VERSION — $FREETYPE_URL"
-  echo "- fribidi $FRIBIDI_VERSION — $FRIBIDI_URL"
-  echo "- harfbuzz $HARFBUZZ_VERSION — $HARFBUZZ_URL"
-  echo "- libass $LIBASS_VERSION — $LIBASS_URL"
-  echo "- lame $LAME_VERSION — $LAME_URL"
-} > "$OUT/SOURCES.md"
 
-echo "==> Self checks"
-FF="$OUT/ffmpeg"
+
+echo "==> Self checks (run before anything is copied to vendor/)"
+FF="$BUILD/out/bin/ffmpeg"
 
 echo "--- dynamic libraries (must be system-only)"
 if otool -L "$FF" | tail -n +2 | grep -vE '^\s+(/usr/lib/|/System/Library/)'; then
@@ -140,5 +130,21 @@ echo "--- encoders"
 
 echo "--- subtitles filter (libass)"
 "$FF" -hide_banner -filters | grep -q subtitles || { echo 'FAIL: subtitles filter missing' >&2; exit 1; }
+
+cp "$BUILD/out/bin/ffmpeg" "$BUILD/out/bin/ffprobe" "$OUT/"
+cp "$SRC/ffmpeg-$FFMPEG_VERSION/COPYING.LGPLv2.1" "$OUT/"
+
+{
+  echo "# ffmpeg sidecar sources"
+  echo
+  echo "This binary is an LGPL-only ffmpeg build. Corresponding sources:"
+  echo
+  echo "- ffmpeg $FFMPEG_VERSION — $FFMPEG_URL"
+  echo "- freetype $FREETYPE_VERSION — $FREETYPE_URL"
+  echo "- fribidi $FRIBIDI_VERSION — $FRIBIDI_URL"
+  echo "- harfbuzz $HARFBUZZ_VERSION — $HARFBUZZ_URL"
+  echo "- libass $LIBASS_VERSION — $LIBASS_URL"
+  echo "- lame $LAME_VERSION — $LAME_URL"
+} > "$OUT/SOURCES.md"
 
 echo "OK: $OUT"

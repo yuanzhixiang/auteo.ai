@@ -16,7 +16,9 @@ SRC="$BUILD/src"
 OUT="$ROOT/vendor/ffmpeg/win32-x64"
 JOBS="$(nproc)"
 
-export PKG_CONFIG_PATH="$DEPS/lib/pkgconfig"
+# Restrict pkg-config to our static deps so configure cannot pick up MSYS2
+# packages and create dynamic DLL dependencies.
+export PKG_CONFIG_LIBDIR="$DEPS/lib/pkgconfig"
 
 mkdir -p "$DEPS" "$SRC" "$OUT"
 
@@ -34,7 +36,7 @@ fetch "$FREETYPE_URL" "freetype-$FREETYPE_VERSION.tar.xz"
 (
   cd "$SRC/freetype-$FREETYPE_VERSION"
   ./configure --prefix="$DEPS" --disable-shared --enable-static \
-    --with-harfbuzz=no --with-brotli=no --with-png=no --with-bzip2=no > /dev/null
+    --with-harfbuzz=no --with-brotli=no --with-png=no --with-bzip2=no --with-zlib=no > /dev/null
   make -j"$JOBS" > /dev/null
   make install > /dev/null
 )
@@ -99,24 +101,11 @@ fetch "$FFMPEG_URL" "ffmpeg-$FFMPEG_VERSION.tar.xz"
   make install > /dev/null
 )
 
-cp "$BUILD/out/bin/ffmpeg.exe" "$BUILD/out/bin/ffprobe.exe" "$OUT/"
-cp "$SRC/ffmpeg-$FFMPEG_VERSION/COPYING.LGPLv2.1" "$OUT/"
 
-{
-  echo "# ffmpeg sidecar sources"
-  echo
-  echo "This binary is an LGPL-only ffmpeg build. Corresponding sources:"
-  echo
-  echo "- ffmpeg $FFMPEG_VERSION — $FFMPEG_URL"
-  echo "- freetype $FREETYPE_VERSION — $FREETYPE_URL"
-  echo "- fribidi $FRIBIDI_VERSION — $FRIBIDI_URL"
-  echo "- harfbuzz $HARFBUZZ_VERSION — $HARFBUZZ_URL"
-  echo "- libass $LIBASS_VERSION — $LIBASS_URL"
-  echo "- lame $LAME_VERSION — $LAME_URL"
-} > "$OUT/SOURCES.md"
 
-echo "==> Self checks"
-FF="$OUT/ffmpeg.exe"
+
+echo "==> Self checks (run before anything is copied to vendor/)"
+FF="$BUILD/out/bin/ffmpeg.exe"
 
 echo "--- dynamic libraries (system DLLs only, no MSYS2 runtime)"
 if ldd "$FF" | grep -iv -E '(/c/windows|ntdll|kernel|msvcrt|advapi|ws2_32|user32|gdi32|ole32|oleaut32|shell32|shlwapi|bcrypt|crypt32|secur32|psapi|mf|d3d|dxgi|api-ms|ucrtbase|combase|rpcrt4|sechost|win32u|imm32|setupapi|version|winmm|avicap|vfw)'; then
@@ -137,5 +126,21 @@ echo "--- encoders"
 
 echo "--- subtitles filter (libass)"
 "$FF" -hide_banner -filters | grep -q subtitles || { echo 'FAIL: subtitles filter missing' >&2; exit 1; }
+
+cp "$BUILD/out/bin/ffmpeg.exe" "$BUILD/out/bin/ffprobe.exe" "$OUT/"
+cp "$SRC/ffmpeg-$FFMPEG_VERSION/COPYING.LGPLv2.1" "$OUT/"
+
+{
+  echo "# ffmpeg sidecar sources"
+  echo
+  echo "This binary is an LGPL-only ffmpeg build. Corresponding sources:"
+  echo
+  echo "- ffmpeg $FFMPEG_VERSION — $FFMPEG_URL"
+  echo "- freetype $FREETYPE_VERSION — $FREETYPE_URL"
+  echo "- fribidi $FRIBIDI_VERSION — $FRIBIDI_URL"
+  echo "- harfbuzz $HARFBUZZ_VERSION — $HARFBUZZ_URL"
+  echo "- libass $LIBASS_VERSION — $LIBASS_URL"
+  echo "- lame $LAME_VERSION — $LAME_URL"
+} > "$OUT/SOURCES.md"
 
 echo "OK: $OUT"
