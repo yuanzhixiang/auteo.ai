@@ -6,7 +6,7 @@ renderer 与 main 之间唯一的桥：通过 `contextBridge.exposeInMainWorld('
 
 ## 当前 API
 
-- `electronVersion`：占位字段，验证桥接可用
+- `getSettingsStatus()` / `setApiKey(key)`：设置通道，实现为 `ipcRenderer.invoke` 转发；API 面类型定义在 `src/shared/types.ts` 的 `AuteoApi`
 
 ## 约束与坑
 

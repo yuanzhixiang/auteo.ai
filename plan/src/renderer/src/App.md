@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-骨架占位：品牌标题 + 副标题。后续步骤逐步替换为真实视图。
+顶栏（品牌 + Workbench/Settings 切换）+ 主区域。Workbench 视图当前为拖入提示占位（拖拽步骤替换）；Settings 视图为 SettingsPage。
 
 ## 约束
 
