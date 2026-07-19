@@ -1,9 +1,9 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+import type { AuteoApi } from '../shared/types'
 
-const api = {
-  electronVersion: process.versions.electron
+const api: AuteoApi = {
+  getSettingsStatus: () => ipcRenderer.invoke('settings:get-status'),
+  setApiKey: (key) => ipcRenderer.invoke('settings:set-api-key', key)
 }
-
-export type AuteoApi = typeof api
 
 contextBridge.exposeInMainWorld('auteo', api)
