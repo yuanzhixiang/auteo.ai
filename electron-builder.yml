@@ -1,0 +1,33 @@
+appId: ai.auteo.app
+productName: Auteo
+directories:
+  output: release
+
+files:
+  - out/**
+  - package.json
+  - '!node_modules/**'
+
+mac:
+  category: public.app-category.video
+  minimumSystemVersion: '13.0'
+  icon: assets/app-icon.png
+  target:
+    - target: dmg
+      arch: [arm64]
+  extraResources:
+    - from: vendor/ffmpeg/darwin-${arch}/
+      to: ffmpeg/
+
+win:
+  icon: assets/app-icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+  extraResources:
+    - from: vendor/ffmpeg/win32-${arch}/
+      to: ffmpeg/
+
+nsis:
+  oneClick: true
+  deleteAppDataOnUninstall: false
