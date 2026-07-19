@@ -1,6 +1,13 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, protocol } from 'electron'
 import path from 'node:path'
 import { registerIpc } from './ipc'
+import { handleMediaRequest, MEDIA_SCHEME } from './media'
+
+// standard is required: without it the media stack fails with
+// PIPELINE_ERROR_READ on seekable (Range) responses.
+protocol.registerSchemesAsPrivileged([
+  { scheme: MEDIA_SCHEME, privileges: { standard: true, stream: true, supportFetchAPI: true } }
+])
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -23,6 +30,7 @@ function createWindow(): void {
 }
 
 void app.whenReady().then(() => {
+  protocol.handle(MEDIA_SCHEME, handleMediaRequest)
   registerIpc()
   createWindow()
 

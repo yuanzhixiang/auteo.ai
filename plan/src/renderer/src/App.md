@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-顶栏（品牌 + Workbench/Settings 切换）+ 主区域。Workbench 为四态状态机：idle（DropZone，拖入即触发转写）→ working（阶段提示，订阅 transcribe:progress）→ ready（当前为句数/时长/前 5 句预览，播放器步骤替换为 VideoPlayer + SubtitleList）或 error（展示主进程错误；`API_KEY_` 前缀错误附"Open Settings"入口；均可 Retry / 换文件）。Settings 视图为 SettingsPage。
+顶栏（品牌 + Workbench/Settings 切换）+ 主区域。Workbench 为四态状态机：idle（DropZone，拖入即触发转写）→ working（阶段提示，订阅 transcribe:progress）→ ready（左 VideoPlayer + 工具条，右 SubtitleList；点句 seek 并播放，timeupdate 反算当前句高亮）或 error（展示主进程错误；`API_KEY_` 前缀错误附"Open Settings"入口；均可 Retry / 换文件）。Settings 视图为 SettingsPage。
 
 ## 约束
 

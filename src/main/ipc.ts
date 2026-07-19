@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import type { TranscribeProgress, Transcript } from '../shared/types'
 import { transcribeAudio } from './asr'
 import { extractAudio } from './ffmpeg'
+import { registerMediaPath } from './media'
 import * as settings from './settings'
 
 /** Single registration point for every ipcMain handler. */
@@ -11,6 +12,8 @@ export function registerIpc(): void {
   ipcMain.handle('settings:set-api-key', (_event, key: string) => {
     settings.setApiKey(key)
   })
+
+  ipcMain.handle('media:register', (_event, videoPath: string) => registerMediaPath(videoPath))
 
   ipcMain.handle('transcribe:run', async (event, videoPath: string): Promise<Transcript> => {
     const apiKey = settings.getApiKey()

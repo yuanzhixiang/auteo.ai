@@ -10,6 +10,7 @@ renderer 与 main 之间唯一的桥：通过 `contextBridge.exposeInMainWorld('
 - `getPathForFile(file)`：`webUtils.getPathForFile` 同步转发（拖拽取路径的唯一途径）
 - `transcribeVideo(videoPath)`：invoke `transcribe:run`
 - `onTranscribeProgress(cb)`：包装 `ipcRenderer.on('transcribe:progress')`，返回取消订阅函数
+- `registerMedia(videoPath)`：invoke `media:register`，换取播放 URL
 - API 面类型定义在 `src/shared/types.ts` 的 `AuteoApi`
 
 ## 约束与坑
