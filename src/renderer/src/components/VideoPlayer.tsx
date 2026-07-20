@@ -12,7 +12,7 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(function Vide
   return (
     <video
       ref={ref}
-      className="max-h-[70vh] w-full rounded-lg bg-black"
+      className="max-h-[70vh] w-full bg-black"
       src={src}
       controls
       onTimeUpdate={(event) => onTimeUpdate(event.currentTarget.currentTime * 1000)}

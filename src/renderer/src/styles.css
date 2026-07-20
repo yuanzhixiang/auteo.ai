@@ -2,8 +2,32 @@
 
 @theme {
   --color-brand: #338cff;
+  /* Subtitle panel tokens. */
+  --color-primary: hsl(238 50% 56%);
+  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --color-border: hsl(204 22% 91%);
 }
 
 :root {
   color-scheme: light dark;
+}
+
+/* Dark values for the panel tokens; --color-primary keeps the same value in dark. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-muted-foreground: hsl(215 20.2% 65.1%);
+    --color-border: hsl(233 13% 25%);
+  }
+}
+
+/* Subtitle panel scroll area. */
+.ConvertResult::-webkit-scrollbar {
+  width: 8px;
+}
+.ConvertResult::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: var(--color-border);
+}
+.ConvertResult::-webkit-scrollbar-track {
+  background: transparent;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { JSX, KeyboardEvent } from 'react'
+import type { FocusEvent, JSX, KeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import type { Utterance } from '../../../shared/types'
 
 function formatTime(ms: number): string {
@@ -22,88 +22,146 @@ export default function SubtitleList({
   onSelect,
   onEditSave
 }: SubtitleListProps): JSX.Element {
-  const activeRef = useRef<HTMLLIElement>(null)
+  const activeRef = useRef<HTMLDivElement>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
+  // Ref mirrors of the edit state: row switches happen on mousedown, before the
+  // old textarea's blur, so commits must read current values synchronously and
+  // stay idempotent when the blur fires (or never fires) afterwards.
+  const editingIdRef = useRef<string | null>(null)
+  const draftRef = useRef('')
+  const pendingCaretRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (editingId === null) activeRef.current?.scrollIntoView({ block: 'nearest' })
   }, [activeId, editingId])
 
-  const startEdit = (utterance: Utterance): void => {
+  const beginEdit = (utterance: Utterance): void => {
+    editingIdRef.current = utterance.id
+    draftRef.current = utterance.text
     setEditingId(utterance.id)
     setDraft(utterance.text)
   }
 
-  const cancelEdit = (): void => {
+  const endEdit = (): void => {
+    editingIdRef.current = null
+    draftRef.current = ''
     setEditingId(null)
     setDraft('')
   }
 
-  const saveEdit = (): void => {
-    if (editingId === null) return
-    const text = draft.trim()
-    if (text === '') {
-      cancelEdit()
-      return
-    }
-    onEditSave(editingId, text)
-    cancelEdit()
+  const commitEdit = (): void => {
+    const id = editingIdRef.current
+    if (id === null) return
+    const text = draftRef.current.trim()
+    endEdit()
+    // Empty text cancels; unchanged text saves nothing.
+    if (text === '' || text === utterances.find((u) => u.id === id)?.text) return
+    onEditSave(id, text)
+  }
+
+  // Both trigger paths (timestamp and text) converge here so at most one row
+  // is ever selected, and switching rows commits the previous row's edit in
+  // the same render — no intermediate highlight frame.
+  const selectRow = (utterance: Utterance): void => {
+    if (editingIdRef.current !== null && editingIdRef.current !== utterance.id) commitEdit()
+    setSelectedId(utterance.id)
   }
 
   const handleEditKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
     // Enter during IME composition (Chinese input) must not commit.
     if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
       event.preventDefault()
-      saveEdit()
+      commitEdit()
     } else if (event.key === 'Escape') {
-      cancelEdit()
+      endEdit()
     }
   }
 
+  // The read div holds a single text node, so the range offset is the string index.
+  const caretIndexAt = (event: ReactMouseEvent<HTMLDivElement>): number | null => {
+    const range = document.caretRangeFromPoint(event.clientX, event.clientY)
+    if (
+      range === null ||
+      range.startContainer.nodeType !== Node.TEXT_NODE ||
+      !event.currentTarget.contains(range.startContainer)
+    ) {
+      return null
+    }
+    return range.startOffset
+  }
+
+  const placeCaret = (event: FocusEvent<HTMLTextAreaElement>): void => {
+    const length = event.target.value.length
+    const index = Math.min(pendingCaretRef.current ?? length, length)
+    pendingCaretRef.current = null
+    event.target.setSelectionRange(index, index)
+  }
+
   return (
-    <ol className="m-0 flex-[2] list-none overflow-y-auto border-l border-black/15 p-0 dark:border-white/15">
-      {utterances.map((utterance) => {
-        const active = utterance.id === activeId
-        const editing = utterance.id === editingId
-        return (
-          <li
-            key={utterance.id}
-            ref={active ? activeRef : undefined}
-            className={`flex gap-2.5 rounded-md px-3 py-2 ${
-              editing
-                ? 'bg-black/5 dark:bg-white/10'
-                : `cursor-pointer ${active ? 'bg-brand/20' : 'hover:bg-black/5 dark:hover:bg-white/10'}`
-            }`}
-            onClick={() => {
-              if (!editing) onSelect(utterance)
-            }}
-            onDoubleClick={() => {
-              if (!editing) startEdit(utterance)
-            }}
-            title={editing ? undefined : 'Click to jump · double-click to edit'}
-          >
-            <span className="shrink-0 pt-0.5 font-mono text-xs opacity-60">
-              {formatTime(utterance.start)}
-            </span>
-            {editing ? (
-              <textarea
-                autoFocus
-                rows={2}
-                className="w-full resize-none rounded border border-brand bg-transparent px-1.5 py-1 text-sm leading-6 outline-none"
-                value={draft}
-                onFocus={(event) => event.target.select()}
-                onChange={(event) => setDraft(event.target.value)}
-                onKeyDown={handleEditKeyDown}
-                onBlur={saveEdit}
-                onClick={(event) => event.stopPropagation()}
-              />
-            ) : (
-              <span className="text-sm leading-6">{utterance.text}</span>
-            )}
-          </li>
-        )
-      })}
-    </ol>
+    <div className="TranscribePanel flex min-h-0 min-w-0 flex-1 flex-col border-l border-border">
+      <div className="ConvertResult min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-2">
+        {utterances.map((utterance, index) => {
+          const selected = utterance.id === selectedId
+          const editing = utterance.id === editingId
+          return (
+            <div
+              key={utterance.id}
+              className="ConvertItem"
+              data-index={index}
+              ref={utterance.id === activeId ? activeRef : undefined}
+            >
+              <div className="AimText group flex items-start gap-2 pl-4">
+                <div
+                  className="relative w-12 shrink-0 cursor-pointer pt-3 text-center text-xs text-muted-foreground select-none transition-colors duration-[160ms] ease-linear hover:text-primary"
+                  onMouseDown={() => {
+                    selectRow(utterance)
+                    onSelect(utterance)
+                  }}
+                >
+                  <span className="absolute -top-1 left-1/2 -translate-x-1/2 text-xs opacity-0 transition-opacity duration-300 group-hover:text-primary group-hover:opacity-100">
+                    #{index + 1}
+                  </span>
+                  {formatTime(utterance.start)}
+                </div>
+                {editing ? (
+                  <textarea
+                    autoFocus
+                    maxLength={10000}
+                    className="block flex-1 resize-none bg-transparent p-2 text-base leading-[1.6] outline-none [field-sizing:content]"
+                    value={draft}
+                    onFocus={placeCaret}
+                    onChange={(event) => {
+                      draftRef.current = event.target.value
+                      setDraft(event.target.value)
+                    }}
+                    onKeyDown={handleEditKeyDown}
+                    onBlur={commitEdit}
+                  />
+                ) : (
+                  <div
+                    className={`flex-1 cursor-text p-2 text-base leading-[1.6] break-words whitespace-pre-wrap transition-colors duration-[160ms] ease-linear ${
+                      selected ? 'bg-primary/30' : 'hover:text-muted-foreground'
+                    }`}
+                    onMouseDown={(event) => {
+                      // The div is replaced by the textarea during this event;
+                      // without preventDefault the browser would then move
+                      // focus to body and immediately blur the new textarea.
+                      event.preventDefault()
+                      pendingCaretRef.current = caretIndexAt(event)
+                      selectRow(utterance)
+                      beginEdit(utterance)
+                    }}
+                  >
+                    {utterance.text}
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
