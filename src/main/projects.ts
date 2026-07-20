@@ -65,6 +65,17 @@ export function deleteProject(id: string): void {
   fs.rmSync(projectPath(id), { force: true })
 }
 
+const EXCERPT_MAX_LENGTH = 120
+
+function buildExcerpt(transcript: Transcript): string {
+  let text = ''
+  for (const utterance of transcript.utterances) {
+    text = text === '' ? utterance.text : `${text} ${utterance.text}`
+    if (text.length >= EXCERPT_MAX_LENGTH) break
+  }
+  return text.slice(0, EXCERPT_MAX_LENGTH)
+}
+
 export function listProjects(): ProjectSummary[] {
   let files: string[]
   try {
@@ -83,6 +94,7 @@ export function listProjects(): ProjectSummary[] {
       updatedAt: project.updatedAt,
       utteranceCount: project.transcript.utterances.length,
       audioDurationMs: project.transcript.audioDurationMs,
+      excerpt: buildExcerpt(project.transcript),
       fileExists: fs.existsSync(project.videoPath)
     })
   }

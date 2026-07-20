@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import type { FocusEvent, JSX, KeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
+import type {
+  FocusEvent,
+  JSX,
+  KeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  ReactNode
+} from 'react'
 import type { Utterance } from '../../../shared/types'
 
 function formatTime(ms: number): string {
@@ -12,6 +18,7 @@ function formatTime(ms: number): string {
 interface SubtitleListProps {
   utterances: Utterance[]
   activeId: string | null
+  toolbar?: ReactNode
   onSelect(utterance: Utterance): void
   onEditSave(id: string, text: string): void
 }
@@ -19,6 +26,7 @@ interface SubtitleListProps {
 export default function SubtitleList({
   utterances,
   activeId,
+  toolbar,
   onSelect,
   onEditSave
 }: SubtitleListProps): JSX.Element {
@@ -101,6 +109,7 @@ export default function SubtitleList({
 
   return (
     <div className="TranscribePanel flex min-h-0 min-w-0 flex-1 flex-col border-l border-border">
+      {toolbar}
       <div className="ConvertResult min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-2">
         {utterances.map((utterance, index) => {
           const selected = utterance.id === selectedId

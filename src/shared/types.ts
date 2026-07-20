@@ -45,6 +45,8 @@ export interface ProjectSummary {
   updatedAt: number
   utteranceCount: number
   audioDurationMs: number
+  /** Leading transcript text for list previews, at most 120 characters; empty without utterances. */
+  excerpt: string
   /** False when the source video no longer exists on disk. */
   fileExists: boolean
 }

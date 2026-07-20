@@ -6,17 +6,29 @@
   --color-primary: hsl(238 50% 56%);
   --color-muted-foreground: hsl(215.4 16.3% 46.9%);
   --color-border: hsl(204 22% 91%);
+  /* Shell tokens (sidebar, media cards). */
+  --color-primary-foreground: hsl(210 40% 98%);
+  --color-sidebar: hsl(0 0% 98%);
+  --color-sidebar-accent: hsl(240 4.8% 95.9%);
+  --color-sidebar-border: hsl(220 13% 91%);
+  --color-card: hsl(0 0% 100%);
+  --color-muted: hsl(210 40% 96.1%);
 }
 
 :root {
   color-scheme: light dark;
 }
 
-/* Dark values for the panel tokens; --color-primary keeps the same value in dark. */
+/* Dark values; --color-primary and --color-primary-foreground keep the same value in dark. */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-muted-foreground: hsl(215 20.2% 65.1%);
     --color-border: hsl(233 13% 25%);
+    --color-sidebar: hsl(240 5.9% 10%);
+    --color-sidebar-accent: hsl(240 3.7% 15.9%);
+    --color-sidebar-border: hsl(240 3.7% 15.9%);
+    --color-card: hsl(222.2 84% 4.9%);
+    --color-muted: hsl(235 14% 18%);
   }
 }
 
