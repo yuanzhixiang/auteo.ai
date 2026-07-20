@@ -17,8 +17,7 @@ jobs:
       - run: npm ci
       # Runtime dependencies must stay on permissive licenses. Any license
       # outside the allow list (including GPL/AGPL/LGPL/MPL/unknown) fails
-      # the build. Extending the list requires a manual review recorded in
-      # plan/.github/workflows/license-check.md.
+      # the build. Extending the list requires a manual review.
       - run: >
           npx -y license-checker --production --excludePrivatePackages
           --onlyAllow "MIT;ISC;BSD-2-Clause;BSD-3-Clause;0BSD;Apache-2.0"

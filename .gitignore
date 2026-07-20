@@ -6,3 +6,7 @@ vendor/ffmpeg/
 .DS_Store
 
 .ffmpeg-build/
+
+/.agentdocs/
+/AGENTS.md
+/plan
