@@ -1,5 +1,6 @@
 import { Captions } from 'lucide-react'
 import { forwardRef } from 'react'
+import { Button } from '@/components/ui/button'
 
 interface VideoPlayerProps {
   src: string
@@ -34,16 +35,15 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(function Vide
         )}
       </div>
       <div className="flex h-10 shrink-0 items-center gap-2 border-t border-border px-3">
-        <button
-          className={`flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2 text-xs transition-colors ${
-            captionsOn ? 'bg-muted' : 'text-muted-foreground hover:bg-muted'
-          }`}
+        <Button
+          variant={captionsOn ? 'secondary' : 'ghost'}
+          size="sm"
           onClick={onToggleCaptions}
           title={captionsOn ? 'Hide captions' : 'Show captions'}
         >
           <Captions size={16} />
           Captions {captionsOn ? 'On' : 'Off'}
-        </button>
+        </Button>
       </div>
     </div>
   )

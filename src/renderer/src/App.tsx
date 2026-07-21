@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { JSX } from 'react'
+import { Button } from '@/components/ui/button'
 import { defaultOption, languageOptionToConfig, orderedOptions } from '../../shared/language'
 import { segmentTranscript } from '../../shared/segment'
 import { replaceAllText, setUtteranceText } from '../../shared/transcript'
@@ -43,9 +44,6 @@ function findActiveUtterance(utterances: Utterance[], timeMs: number): string | 
 function stripIpcErrorPrefix(message: string): string {
   return message.replace(/^Error invoking remote method '[^']+': Error: /, '')
 }
-
-const buttonClass =
-  'cursor-pointer rounded-md border border-black/25 px-3 py-1.5 text-sm dark:border-white/25'
 
 export default function App(): JSX.Element {
   const [view, setView] = useState<View>('media')
@@ -237,16 +235,16 @@ export default function App(): JSX.Element {
       <p className="max-w-2xl text-center text-red-500">{errorMessage}</p>
       <div className="flex flex-wrap justify-center gap-2">
         {apiKeyProblem && (
-          <button className={buttonClass} onClick={() => setView('settings')}>
+          <Button variant="outline" onClick={() => setView('settings')}>
             Open Settings
-          </button>
+          </Button>
         )}
-        <button className={buttonClass} onClick={() => void transcribe(videoPath)}>
+        <Button variant="outline" onClick={() => void transcribe(videoPath)}>
           Retry
-        </button>
-        <button className={buttonClass} onClick={backToList}>
+        </Button>
+        <Button variant="outline" onClick={backToList}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -280,15 +278,12 @@ export default function App(): JSX.Element {
                 />
               </div>
               <div className="flex gap-2">
-                <button className={buttonClass} onClick={() => setPendingImport(null)}>
+                <Button variant="outline" onClick={() => setPendingImport(null)}>
                   Cancel
-                </button>
-                <button
-                  className="cursor-pointer rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
-                  onClick={() => void transcribe(pendingImport.videoPath)}
-                >
+                </Button>
+                <Button onClick={() => void transcribe(pendingImport.videoPath)}>
                   Start transcription
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -304,13 +299,10 @@ export default function App(): JSX.Element {
         ) : detail.kind === 'ready' ? (
           <>
             <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border px-2">
-              <button
-                className="flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-md px-2 text-xs transition-colors hover:bg-muted"
-                onClick={backToList}
-              >
+              <Button variant="ghost" size="sm" onClick={backToList}>
                 <ArrowLeft size={16} />
                 Back
-              </button>
+              </Button>
               <span className="min-w-0 truncate text-xs text-muted-foreground">
                 {fileNameOf(detail.transcript.sourcePath)}
               </span>

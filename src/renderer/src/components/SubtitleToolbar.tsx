@@ -1,14 +1,7 @@
 import { Download, RefreshCw, Scissors, Search, Undo2 } from 'lucide-react'
 import type { JSX } from 'react'
-
-const iconButtonClass =
-  'flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors'
-const textButtonClass =
-  'flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-md px-3 text-xs whitespace-nowrap transition-colors'
-const ghostClass = 'hover:bg-muted'
-const activeClass = 'bg-primary text-primary-foreground shadow hover:bg-primary/90'
-const findInputClass =
-  'h-8 w-36 rounded-md border border-black/20 bg-transparent px-2 text-xs outline-none dark:border-white/20'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface SubtitleToolbarProps {
   utteranceCount: number
@@ -47,61 +40,59 @@ export default function SubtitleToolbar({
 }: SubtitleToolbarProps): JSX.Element {
   return (
     <div className="shrink-0">
-      <div className="box-border flex h-[52px] items-center p-2">
+      <div className="box-border flex h-[52px] items-center gap-1 p-2">
         <span className="px-1 text-xs whitespace-nowrap text-muted-foreground">
           {utteranceCount} utterances · {Math.round(audioDurationMs / 1000)}s
         </span>
         <div className="flex-1" />
         {canUndo && (
-          <button className={`${iconButtonClass} ${ghostClass}`} title="Undo" onClick={onUndo}>
+          <Button variant="ghost" size="icon" title="Undo" onClick={onUndo}>
             <Undo2 size={16} />
-          </button>
+          </Button>
         )}
-        <button className={`${textButtonClass} ${ghostClass}`} onClick={onExportSrt}>
+        <Button variant="ghost" size="sm" onClick={onExportSrt}>
           <Download size={16} />
           Export SRT
-        </button>
-        <button className={`${textButtonClass} ${ghostClass}`} onClick={onRetranscribe}>
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onRetranscribe}>
           <RefreshCw size={16} />
           Re-transcribe
-        </button>
-        <button
-          className={`${iconButtonClass} ${ghostClass}`}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           title="Re-segment into subtitle-length lines"
           onClick={onResegment}
         >
           <Scissors size={16} />
-        </button>
-        <button
-          className={`${iconButtonClass} ${findOpen ? activeClass : ghostClass}`}
+        </Button>
+        <Button
+          variant={findOpen ? 'default' : 'ghost'}
+          size="icon"
           title="Find and replace"
           onClick={onToggleFind}
         >
           <Search size={16} />
-        </button>
+        </Button>
       </div>
       {findOpen && (
         <div className="flex flex-wrap items-center gap-2 px-2 pb-2">
-          <input
+          <Input
             autoFocus
-            className={findInputClass}
+            className="w-36"
             placeholder="Find"
             value={findText}
             onChange={(event) => onFindTextChange(event.target.value)}
           />
-          <input
-            className={findInputClass}
+          <Input
+            className="w-36"
             placeholder="Replace with"
             value={replaceText}
             onChange={(event) => onReplaceTextChange(event.target.value)}
           />
-          <button
-            className={`${textButtonClass} ${ghostClass} disabled:cursor-default disabled:opacity-50`}
-            disabled={findText === ''}
-            onClick={onReplaceAll}
-          >
+          <Button variant="ghost" size="sm" disabled={findText === ''} onClick={onReplaceAll}>
             Replace All
-          </button>
+          </Button>
         </div>
       )}
       {message !== '' && <p className="m-0 px-3 pb-2 text-xs text-muted-foreground">{message}</p>}

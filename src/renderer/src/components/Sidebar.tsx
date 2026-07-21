@@ -1,5 +1,6 @@
 import { Clapperboard, Plus, Settings } from 'lucide-react'
 import type { JSX } from 'react'
+import { Button } from '@/components/ui/button'
 
 export type View = 'import' | 'media' | 'settings'
 
@@ -29,18 +30,16 @@ export default function Sidebar({ view, onSelect }: SidebarProps): JSX.Element {
       </div>
       <nav className="mt-2 flex flex-col gap-1">
         {NAV_ITEMS.map(({ view: itemView, label, Icon }) => (
-          <button
+          <Button
             key={itemView}
-            className={`flex h-8 w-full cursor-pointer items-center gap-2 rounded-md p-2 text-left text-sm [-webkit-app-region:no-drag] ${
-              view === itemView
-                ? 'bg-primary text-primary-foreground'
-                : 'hover:bg-sidebar-accent'
-            }`}
+            variant={view === itemView ? 'default' : 'ghost'}
+            size="sm"
+            className="w-full justify-start [-webkit-app-region:no-drag]"
             onClick={() => onSelect(itemView)}
           >
             <Icon size={16} className="shrink-0" />
             <span>{label}</span>
-          </button>
+          </Button>
         ))}
       </nav>
     </aside>

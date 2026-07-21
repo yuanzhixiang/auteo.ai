@@ -1,5 +1,6 @@
 import { Clock, Trash2, Video } from 'lucide-react'
 import type { JSX } from 'react'
+import { Button } from '@/components/ui/button'
 import type { ProjectSummary } from '../../../shared/types'
 
 function timeAgo(timestamp: number): string {
@@ -73,8 +74,10 @@ export default function MediaList({
                 {project.excerpt}
               </p>
             )}
-            <button
-              className="absolute top-2 right-2 cursor-pointer rounded p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
               title="Delete project"
               onClick={(event) => {
                 event.stopPropagation()
@@ -82,7 +85,7 @@ export default function MediaList({
               }}
             >
               <Trash2 size={14} />
-            </button>
+            </Button>
           </div>
         )
       })}
