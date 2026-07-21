@@ -1,6 +1,6 @@
 {
   "name": "auteo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Auteo desktop app — AI subtitle proofreading workbench",
   "license": "Apache-2.0",
   "private": true,
