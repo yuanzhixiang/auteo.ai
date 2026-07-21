@@ -113,6 +113,7 @@ export default function SubtitleList({
       <div className="ConvertResult min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-2">
         {utterances.map((utterance, index) => {
           const selected = utterance.id === selectedId
+          const active = utterance.id === activeId
           const editing = utterance.id === editingId
           return (
             <div
@@ -151,7 +152,7 @@ export default function SubtitleList({
                 ) : (
                   <div
                     className={`flex-1 cursor-text p-2 text-base leading-[1.6] break-words whitespace-pre-wrap transition-colors duration-[160ms] ease-linear ${
-                      selected ? 'bg-primary/30' : 'hover:text-muted-foreground'
+                      selected || active ? 'bg-primary/30' : 'hover:text-muted-foreground'
                     }`}
                     onMouseDown={(event) => {
                       // The div is replaced by the textarea during this event;
