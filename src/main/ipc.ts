@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
 import { configCacheKey } from '../shared/language'
+import { segmentTranscript } from '../shared/segment'
 import { toSrt } from '../shared/srt'
 import type {
   ExportSrtResult,
@@ -77,7 +78,9 @@ export function registerIpc(): void {
       const audioPath = await extractAudio(videoPath)
       try {
         sendProgress({ phase: 'transcribing' })
-        const transcript = await transcribeAudio(audioPath, apiKey, videoPath, config)
+        const raw = await transcribeAudio(audioPath, apiKey, videoPath, config)
+        // Re-split long ASR utterances into subtitle-length lines before saving.
+        const transcript = segmentTranscript(raw)
         projects.saveProject(transcript, cacheKey)
         return transcript
       } finally {
