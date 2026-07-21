@@ -39,10 +39,10 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(function Vide
             captionsOn ? 'bg-muted' : 'text-muted-foreground hover:bg-muted'
           }`}
           onClick={onToggleCaptions}
-          title={captionsOn ? '关闭字幕' : '开启字幕'}
+          title={captionsOn ? 'Hide captions' : 'Show captions'}
         >
           <Captions size={16} />
-          字幕 {captionsOn ? '开' : '关'}
+          Captions {captionsOn ? 'On' : 'Off'}
         </button>
       </div>
     </div>
