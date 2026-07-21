@@ -220,6 +220,8 @@ export default function App(): JSX.Element {
     <div className="flex h-screen overflow-hidden">
       <Sidebar view={view} onSelect={setView} />
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {/* Title bar strip: the content reaches the window top edge, this keeps it draggable. */}
+        <div className="h-8 shrink-0 [-webkit-app-region:drag]" />
         {view === 'settings' ? (
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             <SettingsPage />

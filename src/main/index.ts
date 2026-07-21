@@ -14,6 +14,10 @@ function createWindow(): void {
     width: 1200,
     height: 800,
     title: 'Auteo',
+    // macOS only: hide the title bar so the app content reaches the top edge and
+    // keep the traffic lights inset. Other platforms keep their native title bar,
+    // otherwise the window would lose its close/minimize controls.
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const } : {}),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,

@@ -16,8 +16,9 @@ const NAV_ITEMS: { view: View; label: string; Icon: typeof Clapperboard }[] = [
 
 export default function Sidebar({ view, onSelect }: SidebarProps): JSX.Element {
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar p-2">
-      <div className="flex h-12 items-center gap-2 px-2">
+    <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar p-2 [-webkit-app-region:drag]">
+      {/* Clears the macOS traffic lights, which overlap the top-left corner. */}
+      <div className="mt-6 flex h-12 items-center gap-2 px-2">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
           A
         </div>
@@ -30,7 +31,7 @@ export default function Sidebar({ view, onSelect }: SidebarProps): JSX.Element {
         {NAV_ITEMS.map(({ view: itemView, label, Icon }) => (
           <button
             key={itemView}
-            className={`flex h-8 w-full cursor-pointer items-center gap-2 rounded-md p-2 text-left text-sm ${
+            className={`flex h-8 w-full cursor-pointer items-center gap-2 rounded-md p-2 text-left text-sm [-webkit-app-region:no-drag] ${
               view === itemView
                 ? 'bg-primary text-primary-foreground'
                 : 'hover:bg-sidebar-accent'
