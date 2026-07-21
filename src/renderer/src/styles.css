@@ -2,12 +2,12 @@
 
 @theme {
   --color-brand: #338cff;
-  /* Subtitle panel tokens. */
-  --color-primary: hsl(238 50% 56%);
+  /* Primary accent = brand blue, unified across sidebar / subtitle panel / toolbar. */
+  --color-primary: #338cff;
+  --color-primary-foreground: hsl(210 40% 98%);
+  /* Neutral tokens (sidebar, media cards, borders). */
   --color-muted-foreground: hsl(215.4 16.3% 46.9%);
   --color-border: hsl(204 22% 91%);
-  /* Shell tokens (sidebar, media cards). */
-  --color-primary-foreground: hsl(210 40% 98%);
   --color-sidebar: hsl(0 0% 98%);
   --color-sidebar-accent: hsl(240 4.8% 95.9%);
   --color-sidebar-border: hsl(220 13% 91%);
