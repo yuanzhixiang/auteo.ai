@@ -9,6 +9,7 @@ vendor/ffmpeg/
 
 /.agentdocs/
 /AGENTS.md
+/DESIGN.md
 /plan
 
 .playwright-mcp

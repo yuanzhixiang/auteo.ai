@@ -284,7 +284,7 @@ export default function App(): JSX.Element {
                   Cancel
                 </button>
                 <button
-                  className="cursor-pointer rounded-md bg-brand px-3 py-1.5 text-sm text-white"
+                  className="cursor-pointer rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
                   onClick={() => void transcribe(pendingImport.videoPath)}
                 >
                   Start transcription

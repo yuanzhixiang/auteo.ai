@@ -51,7 +51,7 @@ export default function SettingsPage(): JSX.Element {
             onChange={(event) => setDraft(event.target.value)}
           />
           <button
-            className="cursor-pointer rounded-md bg-brand px-4 py-2 text-white disabled:cursor-default disabled:opacity-50"
+            className="cursor-pointer rounded-md bg-primary px-4 py-2 text-primary-foreground disabled:cursor-default disabled:opacity-50"
             onClick={() => void save()}
             disabled={draft.trim() === ''}
           >

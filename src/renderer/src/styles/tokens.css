@@ -1,0 +1,233 @@
+/* ============================================================
+   Design Tokens — two-layer architecture
+   Layer 1: primitives — raw numeric scales, no meaning; never
+            reference these directly in application code.
+   Layer 2: semantic — named by responsibility; application code
+            may only reference this layer.
+   Rules: see DESIGN.md
+   ============================================================ */
+
+:root {
+  /* ==========================================================
+     PRIMITIVES
+     ========================================================== */
+
+  /* ---- Spacing scale (4px base grid, 2px half-step at the low end) ---- */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-96: 96px;
+
+  /* ---- Font size scale ---- */
+  --font-size-12: 0.75rem;
+  --font-size-13: 0.8125rem;
+  --font-size-14: 0.875rem;
+  --font-size-16: 1rem;
+  --font-size-18: 1.125rem;
+  --font-size-20: 1.25rem;
+  --font-size-24: 1.5rem;
+  --font-size-30: 1.875rem;
+  --font-size-36: 2.25rem;
+
+  /* ---- Font weights (only these four) ---- */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ---- Font families ---- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* ---- Letter spacing ---- */
+  --tracking-tight: -0.02em; /* headings 20px and up */
+  --tracking-normal: 0;
+
+  /* ---- Line heights ---- */
+  --leading-tight: 1.25; /* large headings */
+  --leading-snug: 1.4; /* small headings, labels */
+  --leading-normal: 1.6; /* body */
+
+  /* ---- Gray scale (neutral, higher number = darker) ---- */
+  --gray-25: #fcfcfd;
+  --gray-50: #f9fafb;
+  --gray-100: #f2f3f5;
+  --gray-200: #e6e8eb;
+  --gray-300: #d5d8dc;
+  --gray-400: #b3b8bf;
+  --gray-500: #8b9198;
+  --gray-600: #6a7076;
+  --gray-700: #4b5055;
+  --gray-800: #33373b;
+  --gray-900: #1a1d20;
+
+  /* ---- Accent (brand blue #338cff, five-step structure) ---- */
+  --accent-50: #ecf5ff;
+  --accent-100: #cfe5ff;
+  --accent-500: #5aa2ff;
+  --accent-600: #338cff;
+  --accent-700: #1f6fd6;
+
+  /* ---- Status colors ---- */
+  --red-500: #e5484d;
+  --red-50: #fdeced;
+  --green-600: #18944d;
+  --green-50: #e9f6ee;
+  --amber-600: #b57708;
+  --amber-50: #fdf3e0;
+
+  /* ---- Radius scale ---- */
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-full: 9999px;
+
+  /* ---- Sizing: three control heights + icons ---- */
+  --size-control-sm: 32px; /* compact button/input */
+  --size-control-md: 36px; /* default */
+  --size-control-lg: 40px; /* large / marketing CTA */
+  --icon-sm: 16px; /* pairs with label/body text */
+  --icon-md: 20px;
+  --icon-lg: 24px;
+
+  /* ---- z-index scale (never write a raw z-index) ---- */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-drawer: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+
+  /* ---- Breakpoints (single source of truth; CSS variables can't be used in
+     @media, so write these literals directly in media queries — and only these four)
+     sm: 640px | md: 768px | lg: 1024px | xl: 1280px ---- */
+
+  /* ---- Shadow scale (subtle layering, keep light) ---- */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+  --shadow-3: 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 24px -6px rgba(0, 0, 0, 0.1);
+
+  /* ---- Motion scale ---- */
+  --duration-fast: 100ms; /* hover, press feedback */
+  --duration-base: 180ms; /* regular transitions */
+  --duration-slow: 300ms; /* overlays, large changes */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1); /* default for entrances, state changes */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* positional movement */
+  --ease-swift: cubic-bezier(0.175, 0.885, 0.32, 1.1); /* overlay appearance, slight overshoot */
+
+  /* ==========================================================
+     SEMANTIC (application code uses only these)
+     ========================================================== */
+
+  /* ---- Spacing responsibilities ----
+     Pick by relationship, not by number:
+     optical adjustment → adjust | parts within an element → inline | compact control inset → compact
+     inside a component → component | adjacent items in a group → stack | container inset → inset
+     between content blocks → block | between subsections → section-sm | between major sections → section
+     page-level whitespace → page */
+  --space-adjust: var(--space-2);
+  --space-inline: var(--space-4);
+  --space-compact: var(--space-6);
+  --space-component: var(--space-8);
+  --space-stack: var(--space-12);
+  --space-inset: var(--space-16);
+  --space-block: var(--space-24);
+  --space-section-sm: var(--space-32);
+  --space-section: var(--space-48);
+  --space-page: var(--space-64);
+
+  --page-margin: var(--space-block);
+  --grid-gutter: var(--space-block);
+  --page-max-width: 1200px;
+
+  /* ---- Text roles (size / leading / weight used as a set) ---- */
+  --text-caption-size: var(--font-size-12); /* helper text, timestamps */
+  --text-caption-leading: var(--leading-snug);
+  --text-caption-weight: var(--font-weight-regular);
+
+  --text-label-size: var(--font-size-13); /* form labels, button text, small labels */
+  --text-label-leading: var(--leading-snug);
+  --text-label-weight: var(--font-weight-medium);
+
+  --text-body-size: var(--font-size-14); /* app UI default body */
+  --text-body-leading: var(--leading-normal);
+  --text-body-weight: var(--font-weight-regular);
+
+  --text-body-lg-size: var(--font-size-16); /* marketing / long-form body */
+  --text-body-lg-leading: var(--leading-normal);
+  --text-body-lg-weight: var(--font-weight-regular);
+
+  --text-h3-size: var(--font-size-16); /* card titles, subsection headings */
+  --text-h3-leading: var(--leading-snug);
+  --text-h3-weight: var(--font-weight-semibold);
+
+  --text-h2-size: var(--font-size-20); /* section headings */
+  --text-h2-leading: var(--leading-snug);
+  --text-h2-weight: var(--font-weight-semibold);
+
+  --text-h1-size: var(--font-size-24); /* page title */
+  --text-h1-leading: var(--leading-tight);
+  --text-h1-weight: var(--font-weight-semibold);
+  --text-h1-tracking: var(--tracking-tight);
+
+  --text-display-size: var(--font-size-36); /* marketing hero title */
+  --text-display-leading: var(--leading-tight);
+  --text-display-weight: var(--font-weight-bold);
+  --text-display-tracking: var(--tracking-tight);
+
+  /* ---- Color responsibilities ---- */
+  --color-text-primary: var(--gray-900); /* body, headings */
+  --color-text-secondary: var(--gray-600); /* secondary info */
+  --color-text-muted: var(--gray-500); /* helper text, placeholders */
+  --color-text-disabled: var(--gray-400);
+  --color-text-on-accent: #ffffff;
+
+  --color-bg-page: #ffffff;
+  --color-bg-subtle: var(--gray-50); /* secondary page surface, code block bg */
+  --color-bg-hover: var(--gray-100); /* list/menu item hover */
+  --color-bg-active: var(--gray-200);
+
+  --color-border: var(--gray-200); /* default divider, card border */
+  --color-border-strong: var(--gray-300); /* input border, hover-state border */
+
+  /* Accent only for: interactive elements, current/selected state, focus ring. Never decoration. */
+  --color-accent: var(--accent-600);
+  --color-accent-hover: var(--accent-700);
+  --color-accent-subtle: var(--accent-50); /* selected item background */
+  --color-focus-ring: var(--accent-500);
+  --color-backdrop: rgba(23, 25, 28, 0.5); /* modal/drawer scrim */
+  --focus-ring: 0 0 0 2px var(--color-bg-page), 0 0 0 4px var(--color-focus-ring);
+
+  --color-danger: var(--red-500);
+  --color-danger-subtle: var(--red-50);
+  --color-success: var(--green-600);
+  --color-success-subtle: var(--green-50);
+  --color-warning: var(--amber-600);
+  --color-warning-subtle: var(--amber-50);
+
+  /* ---- Radius responsibilities ---- */
+  --radius-control: var(--radius-8); /* buttons, inputs, small widgets */
+  --radius-card: var(--radius-12); /* cards, overlays */
+  --radius-pill: var(--radius-full); /* badges, tags */
+
+  /* ---- Shadow responsibilities ---- */
+  --shadow-card: var(--shadow-1); /* static cards, err light */
+  --shadow-dropdown: var(--shadow-2); /* dropdowns, popovers */
+  --shadow-modal: var(--shadow-3); /* modals */
+
+  /* ---- Motion responsibilities ---- */
+  --transition-control: color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  --motion-overlay: var(--duration-slow) var(--ease-swift); /* modal/drawer appearance */
+  --motion-popover: 200ms var(--ease-swift); /* dropdown/tooltip appearance */
+}

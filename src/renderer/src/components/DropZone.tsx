@@ -38,7 +38,7 @@ export default function DropZone({ onSelect }: DropZoneProps): JSX.Element {
     <div
       className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed ${
         dragging
-          ? 'border-brand bg-brand/10'
+          ? 'border-primary bg-primary/10'
           : 'border-black/30 dark:border-white/30'
       }`}
       onDragOver={(event) => {
