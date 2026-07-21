@@ -5,6 +5,7 @@ const api: AuteoApi = {
   getSettingsStatus: () => ipcRenderer.invoke('settings:get-status'),
   setApiKey: (key) => ipcRenderer.invoke('settings:set-api-key', key),
   getPathForFile: (file) => webUtils.getPathForFile(file),
+  pickVideo: () => ipcRenderer.invoke('dialog:pick-video'),
   transcribeVideo: (videoPath, force, config) =>
     ipcRenderer.invoke('transcribe:run', videoPath, force, config),
   getSystemLocale: () => ipcRenderer.invoke('system:get-locale'),

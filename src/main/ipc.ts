@@ -33,6 +33,18 @@ export function registerIpc(): void {
 
   ipcMain.handle('media:register', (_event, videoPath: string) => registerMediaPath(videoPath))
 
+  ipcMain.handle('dialog:pick-video', async (event): Promise<string | null> => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    const options = {
+      properties: ['openFile' as const],
+      filters: [{ name: 'Video', extensions: ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi'] }]
+    }
+    const result = window
+      ? await dialog.showOpenDialog(window, options)
+      : await dialog.showOpenDialog(options)
+    return result.canceled || !result.filePaths[0] ? null : result.filePaths[0]
+  })
+
   ipcMain.handle(
     'export:srt',
     async (event, transcript: Transcript): Promise<ExportSrtResult> => {

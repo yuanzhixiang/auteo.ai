@@ -34,12 +34,18 @@ export default function DropZone({ onSelect }: DropZoneProps): JSX.Element {
     onSelect(videoPath)
   }
 
+  const handleClick = async (): Promise<void> => {
+    setError('')
+    const videoPath = await window.auteo.pickVideo()
+    if (videoPath) onSelect(videoPath)
+  }
+
   return (
     <div
-      className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed ${
-        dragging
-          ? 'border-primary bg-primary/10'
-          : 'border-black/30 dark:border-white/30'
+      role="button"
+      tabIndex={0}
+      className={`flex flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed transition-colors ${
+        dragging ? 'border-primary bg-primary/10' : 'border-border hover:border-input hover:bg-muted/50'
       }`}
       onDragOver={(event) => {
         event.preventDefault()
@@ -47,10 +53,14 @@ export default function DropZone({ onSelect }: DropZoneProps): JSX.Element {
       }}
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
+      onClick={() => void handleClick()}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') void handleClick()
+      }}
     >
-      <p className="m-0 text-lg font-semibold">Drop a video here</p>
-      <p className="m-0 opacity-60">MP4, MOV, MKV, WebM…</p>
-      {error !== '' && <p className="text-red-500">{error}</p>}
+      <p className="m-0 text-lg font-semibold">Drop a video here, or click to browse</p>
+      <p className="m-0 text-muted-foreground">MP4, MOV, MKV, WebM…</p>
+      {error !== '' && <p className="text-destructive">{error}</p>}
     </div>
   )
 }
