@@ -44,6 +44,7 @@ export default function App(): JSX.Element {
   const [projects, setProjects] = useState<ProjectSummary[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [activeUtteranceId, setActiveUtteranceId] = useState<string | null>(null)
+  const [captionsOn, setCaptionsOn] = useState(true)
   const [undoSnapshot, setUndoSnapshot] = useState<Transcript | null>(null)
   const [findOpen, setFindOpen] = useState(false)
   const [findText, setFindText] = useState('')
@@ -256,17 +257,18 @@ export default function App(): JSX.Element {
               </span>
             </div>
             <div className="flex min-h-0 flex-1">
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                <VideoPlayer
-                  ref={videoRef}
-                  src={detail.mediaUrl}
-                  onTimeUpdate={(timeMs) =>
-                    setActiveUtteranceId(
-                      findActiveUtterance(detail.transcript.utterances, timeMs)
-                    )
-                  }
-                />
-              </div>
+              <VideoPlayer
+                ref={videoRef}
+                src={detail.mediaUrl}
+                onTimeUpdate={(timeMs) =>
+                  setActiveUtteranceId(findActiveUtterance(detail.transcript.utterances, timeMs))
+                }
+                captionText={
+                  detail.transcript.utterances.find((u) => u.id === activeUtteranceId)?.text ?? null
+                }
+                captionsOn={captionsOn}
+                onToggleCaptions={() => setCaptionsOn((on) => !on)}
+              />
               <SubtitleList
                 utterances={detail.transcript.utterances}
                 activeId={activeUtteranceId}
