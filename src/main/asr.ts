@@ -41,6 +41,13 @@ function mapUtterances(response: VolcanoResponse): Utterance[] {
   }))
 }
 
+/** The mapped transcript plus the untouched provider response, for archival. */
+export interface TranscribeResult {
+  transcript: Transcript
+  /** Raw provider response body, saved verbatim as an immutable rollback source. */
+  raw: unknown
+}
+
 /**
  * Transcribe an audio file with the Volcano Engine flash (synchronous) ASR.
  * Error messages are prefixed with a stable code so the renderer can react:
@@ -51,7 +58,7 @@ export async function transcribeAudio(
   apiKey: string,
   sourcePath: string,
   config: TranscribeConfig = {}
-): Promise<Transcript> {
+): Promise<TranscribeResult> {
   const audioBase64 = fs.readFileSync(audioPath).toString('base64')
 
   const audio: Record<string, string> = { format: 'mp3', data: audioBase64 }
@@ -103,8 +110,11 @@ export async function transcribeAudio(
   }
 
   return {
-    sourcePath,
-    audioDurationMs: data.audio_info?.duration ?? 0,
-    utterances
+    transcript: {
+      sourcePath,
+      audioDurationMs: data.audio_info?.duration ?? 0,
+      utterances
+    },
+    raw: data
   }
 }

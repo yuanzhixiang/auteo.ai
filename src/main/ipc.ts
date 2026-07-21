@@ -78,10 +78,16 @@ export function registerIpc(): void {
       const audioPath = await extractAudio(videoPath)
       try {
         sendProgress({ phase: 'transcribing' })
-        const raw = await transcribeAudio(audioPath, apiKey, videoPath, config)
-        // Re-split long ASR utterances into subtitle-length lines before saving.
-        const transcript = segmentTranscript(raw)
-        projects.saveProject(transcript, cacheKey)
+        const { transcript: rawTranscript, raw } = await transcribeAudio(
+          audioPath,
+          apiKey,
+          videoPath,
+          config
+        )
+        // Re-split long ASR utterances into subtitle-length lines before saving;
+        // the untouched provider response is archived alongside as the rollback source.
+        const transcript = segmentTranscript(rawTranscript)
+        projects.saveProject(transcript, cacheKey, raw)
         return transcript
       } finally {
         fs.rm(audioPath, { force: true }, () => {})

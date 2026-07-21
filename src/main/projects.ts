@@ -13,6 +13,10 @@ interface ProjectFile {
   updatedAt: number
   /** Normalized language config the transcript was produced with (see shared/language). */
   configKey?: string
+  /** True when an immutable <id>.raw.json holds the original provider response. */
+  hasRaw?: boolean
+  /** ASR provider whose raw format is in the raw file (for future format handling). */
+  rawProvider?: string
   transcript: Transcript
 }
 
@@ -29,6 +33,10 @@ export function projectIdForVideoPath(videoPath: string): string {
 
 function projectPath(id: string): string {
   return path.join(projectsDir(), `${id}.json`)
+}
+
+function rawPath(id: string): string {
+  return path.join(projectsDir(), `${id}.raw.json`)
 }
 
 function statVideo(videoPath: string): { fileSize: number; fileMtimeMs: number } | null {
@@ -48,11 +56,17 @@ export function loadProject(id: string): ProjectFile | null {
   }
 }
 
-export function saveProject(transcript: Transcript, configKey?: string): void {
+/**
+ * Persist a project. On transcription `raw` is the provider response, written
+ * once to an immutable <id>.raw.json. Edit re-saves pass no raw and keep it.
+ */
+export function saveProject(transcript: Transcript, configKey?: string, raw?: unknown): void {
   const id = projectIdForVideoPath(transcript.sourcePath)
   const existing = loadProject(id)
   const stat = statVideo(transcript.sourcePath)
   const now = Date.now()
+  fs.mkdirSync(projectsDir(), { recursive: true })
+  if (raw !== undefined) fs.writeFileSync(rawPath(id), JSON.stringify(raw))
   const project: ProjectFile = {
     id,
     videoPath: transcript.sourcePath,
@@ -60,16 +74,18 @@ export function saveProject(transcript: Transcript, configKey?: string): void {
     fileMtimeMs: stat?.fileMtimeMs ?? existing?.fileMtimeMs ?? 0,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
-    // Edit re-saves pass no configKey; preserve what the transcription set.
+    // Edit re-saves pass no configKey/raw; preserve what the transcription set.
     configKey: configKey ?? existing?.configKey,
+    hasRaw: raw !== undefined ? true : existing?.hasRaw,
+    rawProvider: raw !== undefined ? 'volcano' : existing?.rawProvider,
     transcript
   }
-  fs.mkdirSync(projectsDir(), { recursive: true })
   fs.writeFileSync(projectPath(id), JSON.stringify(project))
 }
 
 export function deleteProject(id: string): void {
   fs.rmSync(projectPath(id), { force: true })
+  fs.rmSync(rawPath(id), { force: true })
 }
 
 const EXCERPT_MAX_LENGTH = 120
@@ -86,7 +102,9 @@ function buildExcerpt(transcript: Transcript): string {
 export function listProjects(): ProjectSummary[] {
   let files: string[]
   try {
-    files = fs.readdirSync(projectsDir()).filter((name) => name.endsWith('.json'))
+    files = fs
+      .readdirSync(projectsDir())
+      .filter((name) => name.endsWith('.json') && !name.endsWith('.raw.json'))
   } catch {
     return []
   }
