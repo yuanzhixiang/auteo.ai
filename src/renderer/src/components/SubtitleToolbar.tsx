@@ -1,4 +1,4 @@
-import { Download, RefreshCw, Search, Undo2 } from 'lucide-react'
+import { Download, RefreshCw, Scissors, Search, Undo2 } from 'lucide-react'
 import type { JSX } from 'react'
 
 const iconButtonClass =
@@ -21,6 +21,7 @@ interface SubtitleToolbarProps {
   onUndo(): void
   onExportSrt(): void
   onRetranscribe(): void
+  onResegment(): void
   onToggleFind(): void
   onFindTextChange(value: string): void
   onReplaceTextChange(value: string): void
@@ -38,6 +39,7 @@ export default function SubtitleToolbar({
   onUndo,
   onExportSrt,
   onRetranscribe,
+  onResegment,
   onToggleFind,
   onFindTextChange,
   onReplaceTextChange,
@@ -62,6 +64,13 @@ export default function SubtitleToolbar({
         <button className={`${textButtonClass} ${ghostClass}`} onClick={onRetranscribe}>
           <RefreshCw size={16} />
           Re-transcribe
+        </button>
+        <button
+          className={`${iconButtonClass} ${ghostClass}`}
+          title="Re-segment into subtitle-length lines"
+          onClick={onResegment}
+        >
+          <Scissors size={16} />
         </button>
         <button
           className={`${iconButtonClass} ${findOpen ? activeClass : ghostClass}`}

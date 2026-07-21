@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { JSX } from 'react'
 import { defaultOption, languageOptionToConfig, orderedOptions } from '../../shared/language'
+import { segmentTranscript } from '../../shared/segment'
 import { replaceAllText, setUtteranceText } from '../../shared/transcript'
 import type {
   LanguageOption,
@@ -193,6 +194,12 @@ export default function App(): JSX.Element {
     applyTranscript(detail.transcript, transcript)
   }
 
+  const handleResegment = (): void => {
+    if (detail.kind !== 'ready') return
+    setMessage('')
+    applyTranscript(detail.transcript, segmentTranscript(detail.transcript))
+  }
+
   const handleUndo = (): void => {
     if (detail.kind !== 'ready' || undoSnapshot === null) return
     const restored = undoSnapshot
@@ -338,6 +345,7 @@ export default function App(): JSX.Element {
                     onUndo={handleUndo}
                     onExportSrt={() => void exportSrt(detail.transcript)}
                     onRetranscribe={() => void transcribe(detail.transcript.sourcePath, true)}
+                    onResegment={handleResegment}
                     onToggleFind={() => setFindOpen((open) => !open)}
                     onFindTextChange={setFindText}
                     onReplaceTextChange={setReplaceText}
