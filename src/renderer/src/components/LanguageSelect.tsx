@@ -1,4 +1,11 @@
 import type { JSX } from 'react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import type { LanguageOption } from '../../../shared/types'
 
 const LABELS: Record<LanguageOption, string> = {
@@ -20,16 +27,17 @@ export default function LanguageSelect({
   onChange
 }: LanguageSelectProps): JSX.Element {
   return (
-    <select
-      className="w-56 cursor-pointer rounded-md border border-black/25 bg-transparent px-2.5 py-2 text-sm dark:border-white/25"
-      value={value}
-      onChange={(event) => onChange(event.target.value as LanguageOption)}
-    >
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {LABELS[option]}
-        </option>
-      ))}
-    </select>
+    <Select value={value} onValueChange={(next) => onChange(next as LanguageOption)}>
+      <SelectTrigger className="w-56">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option} value={option}>
+            {LABELS[option]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }

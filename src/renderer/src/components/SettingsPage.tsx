@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { JSX } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import type { SettingsStatus } from '../../../shared/types'
 
 export default function SettingsPage(): JSX.Element {
@@ -42,21 +44,17 @@ export default function SettingsPage(): JSX.Element {
               : 'Not configured'}
         </p>
         <div className="flex gap-2">
-          <input
+          <Input
             id="volc-api-key"
             type="password"
             placeholder="Paste your API key"
-            className="flex-1 rounded-md border border-black/25 bg-transparent px-2.5 py-2 dark:border-white/25"
+            className="flex-1"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
-          <button
-            className="cursor-pointer rounded-md bg-primary px-4 py-2 text-primary-foreground disabled:cursor-default disabled:opacity-50"
-            onClick={() => void save()}
-            disabled={draft.trim() === ''}
-          >
+          <Button onClick={() => void save()} disabled={draft.trim() === ''}>
             Save
-          </button>
+          </Button>
         </div>
         {message !== '' && <p className="mt-2 mb-0">{message}</p>}
         <p className="mt-3 text-xs opacity-60">
