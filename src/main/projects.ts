@@ -11,8 +11,13 @@ interface ProjectFile {
   fileMtimeMs: number
   createdAt: number
   updatedAt: number
+  /** Normalized language config the transcript was produced with (see shared/language). */
+  configKey?: string
   transcript: Transcript
 }
+
+/** Cache key for the default (auto/simplified) language; also the fallback for pre-config projects. */
+const DEFAULT_CONFIG_KEY = '|'
 
 function projectsDir(): string {
   return path.join(app.getPath('userData'), 'projects')
@@ -43,7 +48,7 @@ export function loadProject(id: string): ProjectFile | null {
   }
 }
 
-export function saveProject(transcript: Transcript): void {
+export function saveProject(transcript: Transcript, configKey?: string): void {
   const id = projectIdForVideoPath(transcript.sourcePath)
   const existing = loadProject(id)
   const stat = statVideo(transcript.sourcePath)
@@ -55,6 +60,8 @@ export function saveProject(transcript: Transcript): void {
     fileMtimeMs: stat?.fileMtimeMs ?? existing?.fileMtimeMs ?? 0,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
+    // Edit re-saves pass no configKey; preserve what the transcription set.
+    configKey: configKey ?? existing?.configKey,
     transcript
   }
   fs.mkdirSync(projectsDir(), { recursive: true })
@@ -108,10 +115,13 @@ export function isStale(project: { videoPath: string; fileSize: number; fileMtim
   return stat.fileSize !== project.fileSize || stat.fileMtimeMs !== project.fileMtimeMs
 }
 
-/** Cached transcript for a video path, only if the file is unchanged. */
-export function findFreshByVideoPath(videoPath: string): Transcript | null {
+/** Cached transcript for a video path, only if the file and language config are unchanged. */
+export function findFreshByVideoPath(videoPath: string, configKey?: string): Transcript | null {
   const project = loadProject(projectIdForVideoPath(videoPath))
   if (!project) return null
   if (isStale(project)) return null
+  // Missing configKey (pre-config projects) counts as the default language.
+  const wanted = configKey ?? DEFAULT_CONFIG_KEY
+  if ((project.configKey ?? DEFAULT_CONFIG_KEY) !== wanted) return null
   return project.transcript
 }

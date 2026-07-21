@@ -1,11 +1,13 @@
 import { app, safeStorage } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
-import type { SettingsStatus } from '../shared/types'
+import type { LanguageOption, SettingsStatus } from '../shared/types'
 
 interface SettingsFile {
   /** Base64 of the safeStorage-encrypted Volcano Engine API key. */
   volcApiKey?: string
+  /** Last chosen transcription language (non-sensitive, stored in plaintext). */
+  languageOption?: LanguageOption
 }
 
 function settingsPath(): string {
@@ -50,4 +52,12 @@ export function getApiKey(): string | null {
 export function getStatus(): SettingsStatus {
   const key = getApiKey()
   return { hasApiKey: key !== null, apiKeyTail: key ? key.slice(-4) : '' }
+}
+
+export function getLanguageOption(): LanguageOption | null {
+  return readSettingsFile().languageOption ?? null
+}
+
+export function setLanguageOption(option: LanguageOption): void {
+  writeSettingsFile({ ...readSettingsFile(), languageOption: option })
 }

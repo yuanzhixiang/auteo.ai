@@ -1,9 +1,17 @@
 import { ArrowLeft } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { JSX } from 'react'
+import { defaultOption, languageOptionToConfig, orderedOptions } from '../../shared/language'
 import { replaceAllText, setUtteranceText } from '../../shared/transcript'
-import type { ProjectSummary, TranscribePhase, Transcript, Utterance } from '../../shared/types'
+import type {
+  LanguageOption,
+  ProjectSummary,
+  TranscribePhase,
+  Transcript,
+  Utterance
+} from '../../shared/types'
 import DropZone from './components/DropZone'
+import LanguageSelect from './components/LanguageSelect'
 import MediaList from './components/MediaList'
 import SettingsPage from './components/SettingsPage'
 import Sidebar from './components/Sidebar'
@@ -50,6 +58,9 @@ export default function App(): JSX.Element {
   const [findText, setFindText] = useState('')
   const [replaceText, setReplaceText] = useState('')
   const [message, setMessage] = useState('')
+  const [languageOrder, setLanguageOrder] = useState<LanguageOption[]>(orderedOptions('en-US'))
+  const [languageOption, setLanguageOption] = useState<LanguageOption>('auto')
+  const [pendingImport, setPendingImport] = useState<{ videoPath: string } | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -59,6 +70,20 @@ export default function App(): JSX.Element {
       )
     })
   }, [])
+
+  useEffect(() => {
+    void (async () => {
+      const locale = await window.auteo.getSystemLocale()
+      const saved = await window.auteo.getLanguagePreference()
+      setLanguageOrder(orderedOptions(locale))
+      setLanguageOption(saved ?? defaultOption(locale))
+    })()
+  }, [])
+
+  const chooseLanguage = (option: LanguageOption): void => {
+    setLanguageOption(option)
+    void window.auteo.setLanguagePreference(option)
+  }
 
   const refreshProjects = useCallback(async () => {
     const summaries = await window.auteo.listProjects()
@@ -87,11 +112,13 @@ export default function App(): JSX.Element {
   }
 
   const transcribe = async (videoPath: string, force = false): Promise<void> => {
+    setPendingImport(null)
     setDetail({ kind: 'working', videoPath, phase: 'extracting' })
     setActiveUtteranceId(null)
     resetEditingState()
     try {
-      const transcript = await window.auteo.transcribeVideo(videoPath, force)
+      const config = languageOptionToConfig(languageOption)
+      const transcript = await window.auteo.transcribeVideo(videoPath, force, config)
       const mediaUrl = await window.auteo.registerMedia(videoPath)
       const summaries = await refreshProjects()
       setSelectedProjectId(
@@ -232,9 +259,34 @@ export default function App(): JSX.Element {
             renderWorking(detail.videoPath, detail.phase)
           ) : detail.kind === 'error' ? (
             renderError(detail.videoPath, detail.message, detail.apiKeyProblem)
+          ) : pendingImport !== null ? (
+            <div className="m-auto flex flex-col items-center gap-4 p-4">
+              <p className="max-w-xl truncate text-sm font-medium">
+                {fileNameOf(pendingImport.videoPath)}
+              </p>
+              <div className="flex flex-col items-center gap-1.5">
+                <span className="text-xs text-muted-foreground">Transcription language</span>
+                <LanguageSelect
+                  options={languageOrder}
+                  value={languageOption}
+                  onChange={chooseLanguage}
+                />
+              </div>
+              <div className="flex gap-2">
+                <button className={buttonClass} onClick={() => setPendingImport(null)}>
+                  Cancel
+                </button>
+                <button
+                  className="cursor-pointer rounded-md bg-brand px-3 py-1.5 text-sm text-white"
+                  onClick={() => void transcribe(pendingImport.videoPath)}
+                >
+                  Start transcription
+                </button>
+              </div>
+            </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col p-4">
-              <DropZone onSelect={(videoPath) => void transcribe(videoPath)} />
+              <DropZone onSelect={(videoPath) => setPendingImport({ videoPath })} />
               {message !== '' && <p className="mt-2 mb-0 text-xs text-red-500">{message}</p>}
             </div>
           )

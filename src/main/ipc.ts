@@ -1,10 +1,13 @@
-import { BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
+import { configCacheKey } from '../shared/language'
 import { toSrt } from '../shared/srt'
 import type {
   ExportSrtResult,
+  LanguageOption,
   OpenProjectResult,
+  TranscribeConfig,
   TranscribeProgress,
   Transcript
 } from '../shared/types'
@@ -19,6 +22,12 @@ export function registerIpc(): void {
   ipcMain.handle('settings:get-status', () => settings.getStatus())
   ipcMain.handle('settings:set-api-key', (_event, key: string) => {
     settings.setApiKey(key)
+  })
+
+  ipcMain.handle('system:get-locale', () => app.getLocale())
+  ipcMain.handle('settings:get-language', () => settings.getLanguageOption())
+  ipcMain.handle('settings:set-language', (_event, option: LanguageOption) => {
+    settings.setLanguageOption(option)
   })
 
   ipcMain.handle('media:register', (_event, videoPath: string) => registerMediaPath(videoPath))
@@ -43,9 +52,15 @@ export function registerIpc(): void {
 
   ipcMain.handle(
     'transcribe:run',
-    async (event, videoPath: string, force = false): Promise<Transcript> => {
+    async (
+      event,
+      videoPath: string,
+      force = false,
+      config: TranscribeConfig = {}
+    ): Promise<Transcript> => {
+      const cacheKey = configCacheKey(config)
       if (!force) {
-        const cached = projects.findFreshByVideoPath(videoPath)
+        const cached = projects.findFreshByVideoPath(videoPath, cacheKey)
         if (cached) return cached
       }
 
@@ -62,8 +77,8 @@ export function registerIpc(): void {
       const audioPath = await extractAudio(videoPath)
       try {
         sendProgress({ phase: 'transcribing' })
-        const transcript = await transcribeAudio(audioPath, apiKey, videoPath)
-        projects.saveProject(transcript)
+        const transcript = await transcribeAudio(audioPath, apiKey, videoPath, config)
+        projects.saveProject(transcript, cacheKey)
         return transcript
       } finally {
         fs.rm(audioPath, { force: true }, () => {})

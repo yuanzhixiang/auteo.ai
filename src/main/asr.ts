@@ -1,6 +1,6 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
-import type { Transcript, Utterance } from '../shared/types'
+import type { TranscribeConfig, Transcript, Utterance } from '../shared/types'
 
 const FLASH_ENDPOINT = 'https://openspeech.bytedance.com/api/v3/auc/bigmodel/recognize/flash'
 const RESOURCE_ID = 'volc.bigasr.auc_turbo'
@@ -49,9 +49,21 @@ function mapUtterances(response: VolcanoResponse): Utterance[] {
 export async function transcribeAudio(
   audioPath: string,
   apiKey: string,
-  sourcePath: string
+  sourcePath: string,
+  config: TranscribeConfig = {}
 ): Promise<Transcript> {
   const audioBase64 = fs.readFileSync(audioPath).toString('base64')
+
+  const audio: Record<string, string> = { format: 'mp3', data: audioBase64 }
+  if (config.language) audio.language = config.language
+  const request: Record<string, unknown> = {
+    model_name: 'bigmodel',
+    enable_itn: true,
+    enable_punc: true,
+    enable_speaker_info: true,
+    show_utterances: true
+  }
+  if (config.zhVariant) request.output_zh_variant = config.zhVariant
 
   let response: Response
   try {
@@ -64,17 +76,7 @@ export async function transcribeAudio(
         'X-Api-Request-Id': crypto.randomUUID(),
         'X-Api-Sequence': '-1'
       },
-      body: JSON.stringify({
-        user: { uid: 'auteo' },
-        audio: { format: 'mp3', data: audioBase64 },
-        request: {
-          model_name: 'bigmodel',
-          enable_itn: true,
-          enable_punc: true,
-          enable_speaker_info: true,
-          show_utterances: true
-        }
-      })
+      body: JSON.stringify({ user: { uid: 'auteo' }, audio, request })
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)

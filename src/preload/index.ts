@@ -5,7 +5,11 @@ const api: AuteoApi = {
   getSettingsStatus: () => ipcRenderer.invoke('settings:get-status'),
   setApiKey: (key) => ipcRenderer.invoke('settings:set-api-key', key),
   getPathForFile: (file) => webUtils.getPathForFile(file),
-  transcribeVideo: (videoPath, force) => ipcRenderer.invoke('transcribe:run', videoPath, force),
+  transcribeVideo: (videoPath, force, config) =>
+    ipcRenderer.invoke('transcribe:run', videoPath, force, config),
+  getSystemLocale: () => ipcRenderer.invoke('system:get-locale'),
+  getLanguagePreference: () => ipcRenderer.invoke('settings:get-language'),
+  setLanguagePreference: (option) => ipcRenderer.invoke('settings:set-language', option),
   registerMedia: (videoPath) => ipcRenderer.invoke('media:register', videoPath),
   exportSrt: (transcript) => ipcRenderer.invoke('export:srt', transcript),
   listProjects: () => ipcRenderer.invoke('project:list'),
