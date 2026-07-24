@@ -18,6 +18,9 @@ jobs:
       # Runtime dependencies must stay on permissive licenses. Any license
       # outside the allow list (including GPL/AGPL/LGPL/MPL/unknown) fails
       # the build. Extending the list requires a manual review.
+      # OFL-1.1 covers the bundled @fontsource fonts: it permits bundling
+      # and redistribution with the app, only selling the fonts standalone
+      # is restricted.
       - run: >
           npx -y license-checker --production --excludePrivatePackages
-          --onlyAllow "MIT;ISC;BSD-2-Clause;BSD-3-Clause;0BSD;Apache-2.0"
+          --onlyAllow "MIT;ISC;BSD-2-Clause;BSD-3-Clause;0BSD;Apache-2.0;OFL-1.1"
