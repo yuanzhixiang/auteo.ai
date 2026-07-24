@@ -1,10 +1,20 @@
 /* ============================================================
-   Design Tokens — two-layer architecture
+   Logcut Design Tokens — layered architecture
    Layer 1: primitives — raw numeric scales, no meaning; never
             reference these directly in application code.
    Layer 2: semantic — named by responsibility; application code
             may only reference this layer.
+   Layer 3: editor domain — timeline/player/recording components only.
    Rules: see DESIGN.md
+
+   Logcut-specific conventions:
+   · The product defaults to dark mode; dark values are the brand
+     reference. Dark overrides live in styles.css (.dark block).
+   · orange is the "happening now" color: playhead / recording /
+     render progress / the grade gradient. Never use it as a regular
+     interactive or decorative color. Interaction is always teal.
+   · Timecodes always use --font-mono + tabular-nums
+     (the --text-timecode-* trio).
    ============================================================ */
 
 :root {
@@ -42,41 +52,61 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* ---- Font families ---- */
+  /* ---- Font families (three roles) ----
+     sans: UI workhorse (dense panels, forms, body copy)
+     display: brand display face (h1/h2/display, marketing surfaces)
+     mono: timecodes / frame numbers / parameter values — a brand
+           surface in an editor, not just a code font */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Microsoft YaHei', sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-display: 'Space Grotesk', var(--font-sans);
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* ---- Letter spacing ---- */
   --tracking-tight: -0.02em; /* headings 20px and up */
   --tracking-normal: 0;
+  --tracking-wide: 0.08em; /* timecodes / all-caps eyebrows */
 
   /* ---- Line heights ---- */
   --leading-tight: 1.25; /* large headings */
   --leading-snug: 1.4; /* small headings, labels */
   --leading-normal: 1.6; /* body */
 
-  /* ---- Gray scale (neutral, higher number = darker) ---- */
+  /* ---- Gray scale (neutral cool gray; 500 = brand log gray) ---- */
   --gray-25: #fcfcfd;
   --gray-50: #f9fafb;
   --gray-100: #f2f3f5;
   --gray-200: #e6e8eb;
   --gray-300: #d5d8dc;
   --gray-400: #b3b8bf;
-  --gray-500: #8b9198;
+  --gray-500: #8a9096; /* brand log gray — left half of the logo, dark-mode secondary text */
   --gray-600: #6a7076;
   --gray-700: #4b5055;
   --gray-800: #33373b;
   --gray-900: #1a1d20;
 
-  /* ---- Accent (brand blue #338cff, five-step structure) ---- */
-  --accent-50: #ecf5ff;
-  --accent-100: #cfe5ff;
-  --accent-500: #5aa2ff;
-  --accent-600: #338cff;
-  --accent-700: #1f6fd6;
+  /* ---- Brand dark surfaces (dark mode references these directly) ---- */
+  --ink-page: #101214;
+  --ink-surface: #191c1f;
+  --ink-hover: #22262a;
+  --ink-active: #2a2f34;
+  --ink-border: #2a2e33;
+  --ink-border-strong: #3a4046;
+  --ink-text: #e8eaec;
 
-  /* ---- Status colors ---- */
+  /* ---- Primary: teal (brand value = 500; light mode starts at 600 for contrast) ---- */
+  --teal-50: #eaf8f6;
+  --teal-100: #d0f0ec;
+  --teal-500: #2fb5a8; /* brand value — logo gradient start */
+  --teal-600: #23968b;
+  --teal-700: #1c7a71;
+
+  /* ---- Brand warm: orange ("happening now" only: playhead/recording/render/grade) ---- */
+  --orange-50: #fdf1e7;
+  --orange-500: #e8833a; /* brand value — logo gradient end */
+  --orange-600: #c96a26;
+
+  /* ---- Status colors (warning uses amber to stay clear of brand orange) ---- */
   --red-500: #e5484d;
   --red-50: #fdeced;
   --green-600: #18944d;
@@ -169,21 +199,29 @@
   --text-h3-leading: var(--leading-snug);
   --text-h3-weight: var(--font-weight-semibold);
 
-  --text-h2-size: var(--font-size-20); /* section headings */
+  --text-h2-size: var(--font-size-20); /* section headings; h2 and up use --font-display */
   --text-h2-leading: var(--leading-snug);
   --text-h2-weight: var(--font-weight-semibold);
 
-  --text-h1-size: var(--font-size-24); /* page title */
+  --text-h1-size: var(--font-size-24); /* page title; uses --font-display */
   --text-h1-leading: var(--leading-tight);
   --text-h1-weight: var(--font-weight-semibold);
   --text-h1-tracking: var(--tracking-tight);
 
-  --text-display-size: var(--font-size-36); /* marketing hero title */
+  --text-display-size: var(--font-size-36); /* marketing hero title; uses --font-display */
   --text-display-leading: var(--leading-tight);
   --text-display-weight: var(--font-weight-bold);
   --text-display-tracking: var(--tracking-tight);
 
-  /* ---- Color responsibilities ---- */
+  /* Timecode role: mono + tabular-nums + wide tracking.
+     Usage: font-family var(--font-mono); font-variant-numeric: tabular-nums */
+  --text-timecode-size: var(--font-size-13);
+  --text-timecode-leading: var(--leading-snug);
+  --text-timecode-weight: var(--font-weight-regular);
+  --text-timecode-tracking: var(--tracking-wide);
+
+  /* ---- Color responsibilities (light mode; the product defaults to dark,
+     overridden by the .dark block in styles.css) ---- */
   --color-text-primary: var(--gray-900); /* body, headings */
   --color-text-secondary: var(--gray-600); /* secondary info */
   --color-text-muted: var(--gray-500); /* helper text, placeholders */
@@ -199,11 +237,11 @@
   --color-border-strong: var(--gray-300); /* input border, hover-state border */
 
   /* Accent only for: interactive elements, current/selected state, focus ring. Never decoration. */
-  --color-accent: var(--accent-600);
-  --color-accent-hover: var(--accent-700);
-  --color-accent-subtle: var(--accent-50); /* selected item background */
-  --color-focus-ring: var(--accent-500);
-  --color-backdrop: rgba(23, 25, 28, 0.5); /* modal/drawer scrim */
+  --color-accent: var(--teal-600); /* 600 on light surfaces for contrast */
+  --color-accent-hover: var(--teal-700);
+  --color-accent-subtle: var(--teal-50); /* selected item background */
+  --color-focus-ring: var(--teal-500);
+  --color-backdrop: rgba(16, 18, 20, 0.5); /* modal/drawer scrim */
   --focus-ring: 0 0 0 2px var(--color-bg-page), 0 0 0 4px var(--color-focus-ring);
 
   --color-danger: var(--red-500);
@@ -213,13 +251,21 @@
   --color-warning: var(--amber-600);
   --color-warning-subtle: var(--amber-50);
 
+  /* Brand warm responsibilities ("happening now" scenes only, see file header) */
+  --color-brand-warm: var(--orange-500);
+  --color-brand-warm-subtle: var(--orange-50);
+
+  /* Signature gradient: log gray → graded. Brand moments only
+     (hero, render progress, empty-state accents). */
+  --gradient-grade: linear-gradient(100deg, var(--teal-500), var(--orange-500));
+
   /* ---- Radius responsibilities ---- */
   --radius-control: var(--radius-8); /* buttons, inputs, small widgets */
   --radius-card: var(--radius-12); /* cards, overlays */
   --radius-pill: var(--radius-full); /* badges, tags */
 
   /* ---- Shadow responsibilities ---- */
-  --shadow-card: var(--shadow-1); /* static cards, err light */
+  --shadow-card: var(--shadow-1); /* static cards */
   --shadow-dropdown: var(--shadow-2); /* dropdowns, popovers */
   --shadow-modal: var(--shadow-3); /* modals */
 
@@ -230,4 +276,15 @@
     box-shadow var(--duration-fast) var(--ease-out);
   --motion-overlay: var(--duration-slow) var(--ease-swift); /* modal/drawer appearance */
   --motion-popover: 200ms var(--ease-swift); /* dropdown/tooltip appearance */
+
+  /* ==========================================================
+     EDITOR domain (timeline/player/recording components only)
+     ========================================================== */
+  --editor-playhead: var(--orange-500); /* playhead / scrub line */
+  --editor-selection: var(--color-accent); /* clip selection stroke */
+  --editor-selection-fill: rgba(47, 181, 168, 0.14); /* clip selection fill */
+  --editor-waveform: rgba(47, 181, 168, 0.55); /* waveform */
+  --editor-waveform-muted: rgba(138, 144, 150, 0.35); /* muted/unselected waveform */
+  --editor-recording: var(--red-500); /* recording indicator */
+  --editor-render-progress: var(--gradient-grade); /* render/export progress bar */
 }

@@ -1,11 +1,16 @@
 <svg
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 900 900"
-  fill="currentColor"
+  viewBox="0 0 64 64"
   role="img"
   aria-labelledby="logcut-logo-title"
 >
   <title id="logcut-logo-title">Logcut</title>
-  <path d="M123 754c-24 13-43-14-34-63 3-16 8-31 15-45L368 128c34-68 123-78 165-9l168 329c4 9 0 14-8 18l-68 31c-10 5-19 4-29-2L404 374c-16-10-35 1-35 21v219c0 8-4 13-11 17L123 754Z" />
-  <path d="m382 659 332-157c8-4 14-1 18 8l63 131c31 65 12 139-38 180-47 39-105 28-139 9L379 683c-11-6-9-18 3-24Z" />
+  <defs>
+    <linearGradient id="grade" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#2FB5A8"/>
+      <stop offset="1" stop-color="#E8833A"/>
+    </linearGradient>
+  </defs>
+  <path d="M0 0 H36 L22.7 64 H0 Z" fill="#8A9096"/>
+  <path d="M41.3 0 H64 V64 H28 Z" fill="url(#grade)"/>
 </svg>

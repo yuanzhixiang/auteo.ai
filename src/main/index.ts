@@ -14,6 +14,9 @@ function createWindow(): void {
     width: 1200,
     height: 800,
     title: 'Logcut',
+    // Matches --ink-page so the window doesn't flash white before the
+    // dark renderer paints.
+    backgroundColor: '#101214',
     // macOS only: hide the title bar so the app content reaches the top edge and
     // keep the traffic lights inset. Other platforms keep their native title bar,
     // otherwise the window would lose its close/minimize controls.
