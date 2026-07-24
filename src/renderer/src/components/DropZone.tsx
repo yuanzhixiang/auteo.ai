@@ -26,7 +26,7 @@ export default function DropZone({ onSelect }: DropZoneProps): JSX.Element {
       setError('Please drop a video file.')
       return
     }
-    const videoPath = window.auteo.getPathForFile(file)
+    const videoPath = window.logcut.getPathForFile(file)
     if (!videoPath) {
       setError('Could not resolve the file path.')
       return
@@ -36,7 +36,7 @@ export default function DropZone({ onSelect }: DropZoneProps): JSX.Element {
 
   const handleClick = async (): Promise<void> => {
     setError('')
-    const videoPath = await window.auteo.pickVideo()
+    const videoPath = await window.logcut.pickVideo()
     if (videoPath) onSelect(videoPath)
   }
 

@@ -10,7 +10,7 @@ export default function SettingsPage(): JSX.Element {
   const [message, setMessage] = useState('')
 
   const refresh = useCallback(async () => {
-    setStatus(await window.auteo.getSettingsStatus())
+    setStatus(await window.logcut.getSettingsStatus())
   }, [])
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function SettingsPage(): JSX.Element {
   const save = async (): Promise<void> => {
     setMessage('')
     try {
-      await window.auteo.setApiKey(draft)
+      await window.logcut.setApiKey(draft)
       setDraft('')
       setMessage('API key saved.')
       await refresh()

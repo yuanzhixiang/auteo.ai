@@ -1,8 +1,8 @@
-import type { AuteoApi } from '../../shared/types'
+import type { LogcutApi } from '../../shared/types'
 
 declare global {
   interface Window {
-    auteo: AuteoApi
+    logcut: LogcutApi
   }
 }
 

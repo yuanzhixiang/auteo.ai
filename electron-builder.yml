@@ -1,5 +1,5 @@
-appId: ai.auteo.app
-productName: Auteo
+appId: ai.logcut.app
+productName: Logcut
 directories:
   output: release
 

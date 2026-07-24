@@ -1,7 +1,7 @@
 {
-  "name": "auteo",
+  "name": "logcut",
   "version": "0.1.2",
-  "description": "Auteo desktop app — AI subtitle proofreading workbench",
+  "description": "Logcut desktop app — AI subtitle proofreading workbench",
   "license": "Apache-2.0",
   "private": true,
   "main": "./out/main/index.js",

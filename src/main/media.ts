@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-export const MEDIA_SCHEME = 'auteo-media'
+export const MEDIA_SCHEME = 'logcut-media'
 
 /** Allow-list of files the renderer may stream: only paths the user dropped. */
 const registeredPaths = new Map<string, string>()
@@ -37,7 +37,7 @@ export function registerMediaPath(filePath: string): string {
 const MAX_CHUNK_BYTES = 8 * 1024 * 1024
 
 /**
- * Handler for the auteo-media:// protocol.
+ * Handler for the logcut-media:// protocol.
  *
  * File bytes are read through net.fetch (Chromium's file loader honours the
  * Range header but always reports a bare 200), then rewrapped into a proper

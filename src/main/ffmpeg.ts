@@ -62,7 +62,7 @@ function runFfmpeg(args: string[]): Promise<void> {
  * Returns the temp file path; the caller is responsible for deleting it.
  */
 export async function extractAudio(videoPath: string): Promise<string> {
-  const tempDir = path.join(app.getPath('temp'), 'auteo')
+  const tempDir = path.join(app.getPath('temp'), 'logcut')
   fs.mkdirSync(tempDir, { recursive: true })
   const hash = crypto.createHash('sha1').update(videoPath).digest('hex').slice(0, 16)
   const outputPath = path.join(tempDir, `${hash}.mp3`)

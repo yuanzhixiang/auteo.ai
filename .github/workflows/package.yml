@@ -32,7 +32,7 @@ jobs:
         run: npx electron-builder --mac dmg --arm64 --publish never
       - uses: actions/upload-artifact@v4
         with:
-          name: auteo-mac-arm64
+          name: logcut-mac-arm64
           path: release/*.dmg
 
   windows:
@@ -58,5 +58,5 @@ jobs:
         run: npx electron-builder --win nsis --x64 --publish never
       - uses: actions/upload-artifact@v4
         with:
-          name: auteo-win-x64
+          name: logcut-win-x64
           path: release/*.exe

@@ -13,7 +13,7 @@ function createWindow(): void {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    title: 'Auteo',
+    title: 'Logcut',
     // macOS only: hide the title bar so the app content reaches the top edge and
     // keep the traffic lights inset. Other platforms keep their native title bar,
     // otherwise the window would lose its close/minimize controls.

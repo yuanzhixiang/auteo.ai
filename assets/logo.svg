@@ -3,9 +3,9 @@
   viewBox="0 0 900 900"
   fill="currentColor"
   role="img"
-  aria-labelledby="auteo-logo-title"
+  aria-labelledby="logcut-logo-title"
 >
-  <title id="auteo-logo-title">Auteo</title>
+  <title id="logcut-logo-title">Logcut</title>
   <path d="M123 754c-24 13-43-14-34-63 3-16 8-31 15-45L368 128c34-68 123-78 165-9l168 329c4 9 0 14-8 18l-68 31c-10 5-19 4-29-2L404 374c-16-10-35 1-35 21v219c0 8-4 13-11 17L123 754Z" />
   <path d="m382 659 332-157c8-4 14-1 18 8l63 131c31 65 12 139-38 180-47 39-105 28-139 9L379 683c-11-6-9-18 3-24Z" />
 </svg>

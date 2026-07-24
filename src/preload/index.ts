@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
-import type { AuteoApi, TranscribeProgress } from '../shared/types'
+import type { LogcutApi, TranscribeProgress } from '../shared/types'
 
-const api: AuteoApi = {
+const api: LogcutApi = {
   getSettingsStatus: () => ipcRenderer.invoke('settings:get-status'),
   setApiKey: (key) => ipcRenderer.invoke('settings:set-api-key', key),
   getPathForFile: (file) => webUtils.getPathForFile(file),
@@ -26,4 +26,4 @@ const api: AuteoApi = {
   }
 }
 
-contextBridge.exposeInMainWorld('auteo', api)
+contextBridge.exposeInMainWorld('logcut', api)

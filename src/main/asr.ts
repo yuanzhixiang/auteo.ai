@@ -83,7 +83,7 @@ export async function transcribeAudio(
         'X-Api-Request-Id': crypto.randomUUID(),
         'X-Api-Sequence': '-1'
       },
-      body: JSON.stringify({ user: { uid: 'auteo' }, audio, request })
+      body: JSON.stringify({ user: { uid: 'logcut' }, audio, request })
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)

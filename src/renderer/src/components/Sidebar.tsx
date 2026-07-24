@@ -24,7 +24,7 @@ export default function Sidebar({ view, onSelect }: SidebarProps): JSX.Element {
           A
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-sm font-semibold">Auteo</span>
+          <span className="text-sm font-semibold">Logcut</span>
           <span className="text-xs text-muted-foreground">AI subtitles</span>
         </div>
       </div>

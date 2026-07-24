@@ -63,7 +63,7 @@ export default function App(): JSX.Element {
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    return window.auteo.onTranscribeProgress((progress) => {
+    return window.logcut.onTranscribeProgress((progress) => {
       setDetail((current) =>
         current.kind === 'working' ? { ...current, phase: progress.phase } : current
       )
@@ -72,8 +72,8 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     void (async () => {
-      const locale = await window.auteo.getSystemLocale()
-      const saved = await window.auteo.getLanguagePreference()
+      const locale = await window.logcut.getSystemLocale()
+      const saved = await window.logcut.getLanguagePreference()
       setLanguageOrder(orderedOptions(locale))
       setLanguageOption(saved ?? defaultOption(locale))
     })()
@@ -81,11 +81,11 @@ export default function App(): JSX.Element {
 
   const chooseLanguage = (option: LanguageOption): void => {
     setLanguageOption(option)
-    void window.auteo.setLanguagePreference(option)
+    void window.logcut.setLanguagePreference(option)
   }
 
   const refreshProjects = useCallback(async () => {
-    const summaries = await window.auteo.listProjects()
+    const summaries = await window.logcut.listProjects()
     setProjects(summaries)
     return summaries
   }, [])
@@ -117,8 +117,8 @@ export default function App(): JSX.Element {
     resetEditingState()
     try {
       const config = languageOptionToConfig(languageOption)
-      const transcript = await window.auteo.transcribeVideo(videoPath, force, config)
-      const mediaUrl = await window.auteo.registerMedia(videoPath)
+      const transcript = await window.logcut.transcribeVideo(videoPath, force, config)
+      const mediaUrl = await window.logcut.registerMedia(videoPath)
       const summaries = await refreshProjects()
       setSelectedProjectId(
         summaries.find((summary) => summary.videoPath === transcript.sourcePath)?.id ?? null
@@ -141,7 +141,7 @@ export default function App(): JSX.Element {
     setActiveUtteranceId(null)
     resetEditingState()
     try {
-      const result = await window.auteo.openProject(id)
+      const result = await window.logcut.openProject(id)
       setDetail({ kind: 'ready', transcript: result.transcript, mediaUrl: result.mediaUrl })
       if (result.stale) setMessage('Video file has changed — consider Re-transcribe.')
     } catch (error) {
@@ -154,7 +154,7 @@ export default function App(): JSX.Element {
   }
 
   const deleteProject = async (id: string): Promise<void> => {
-    await window.auteo.deleteProject(id)
+    await window.logcut.deleteProject(id)
     if (id === selectedProjectId) {
       setSelectedProjectId(null)
       backToList()
@@ -172,7 +172,7 @@ export default function App(): JSX.Element {
   const applyTranscript = (previous: Transcript, next: Transcript): void => {
     setUndoSnapshot(previous)
     setDetail((current) => (current.kind === 'ready' ? { ...current, transcript: next } : current))
-    void window.auteo.saveProject(next)
+    void window.logcut.saveProject(next)
   }
 
   const handleEditSave = (id: string, text: string): void => {
@@ -206,13 +206,13 @@ export default function App(): JSX.Element {
     setDetail((current) =>
       current.kind === 'ready' ? { ...current, transcript: restored } : current
     )
-    void window.auteo.saveProject(restored)
+    void window.logcut.saveProject(restored)
   }
 
   const exportSrt = async (transcript: Transcript): Promise<void> => {
     setMessage('')
     try {
-      const result = await window.auteo.exportSrt(transcript)
+      const result = await window.logcut.exportSrt(transcript)
       if (result.savedPath) setMessage(`Saved to ${result.savedPath}`)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Export failed.')

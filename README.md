@@ -1,6 +1,6 @@
-# Auteo
+# Logcut
 
-Auteo is an AI video editor from [auteo.ai](https://auteo.ai). This repository contains the
+Logcut is an AI video editor from [logcut.com](https://logcut.com). This repository contains the
 Electron + TypeScript desktop application. The current milestone is the end-to-end skeleton of
 the subtitle proofreading workbench: drop a video, extract audio locally with the bundled
 ffmpeg, transcribe it with Volcano Engine ASR, browse the utterance list synced with playback,
@@ -22,7 +22,7 @@ development only — system builds are usually GPL-enabled and must never be shi
 
 ## ffmpeg sidecar
 
-Auteo ships a self-built LGPL-only ffmpeg as a separate sidecar binary:
+Logcut ships a self-built LGPL-only ffmpeg as a separate sidecar binary:
 
 ```bash
 ./scripts/build-ffmpeg-macos.sh   # builds into vendor/ffmpeg/darwin-arm64/
@@ -43,7 +43,7 @@ CI packaging for macOS and Windows lives in `.github/workflows/package.yml`.
 
 ## License
 
-Auteo is licensed under the [Apache License 2.0](LICENSE). Runtime npm dependencies are
+Logcut is licensed under the [Apache License 2.0](LICENSE). Runtime npm dependencies are
 restricted to permissive licenses (MIT/ISC/BSD/Apache-2.0), enforced by the license-check
 workflow. The bundled ffmpeg sidecar is an LGPL build distributed as a separate program with
 its own license texts and source references.

@@ -73,7 +73,7 @@ export interface OpenProjectResult {
  * API exposed to the renderer through the preload bridge.
  * The plaintext API key never crosses this boundary.
  */
-export interface AuteoApi {
+export interface LogcutApi {
   getSettingsStatus(): Promise<SettingsStatus>
   setApiKey(key: string): Promise<void>
   /** Resolve a dropped File to its filesystem path (webUtils.getPathForFile). */
@@ -90,7 +90,7 @@ export interface AuteoApi {
   setLanguagePreference(option: LanguageOption): Promise<void>
   /** Subscribe to transcription progress. Returns an unsubscribe function. */
   onTranscribeProgress(callback: (progress: TranscribeProgress) => void): () => void
-  /** Register a local video for playback; returns an auteo-media:// URL. */
+  /** Register a local video for playback; returns an logcut-media:// URL. */
   registerMedia(videoPath: string): Promise<string>
   /** Export the transcript as SRT via a save dialog. Empty result if cancelled. */
   exportSrt(transcript: Transcript): Promise<ExportSrtResult>
