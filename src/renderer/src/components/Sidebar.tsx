@@ -35,8 +35,8 @@ export default function Sidebar({ view, onSelect }: SidebarProps): JSX.Element {
           <path d="M41.3 0 H64 V64 H28 Z" fill="url(#logo-grade)" />
         </svg>
         <div className="flex flex-col leading-tight">
-          <span className="text-sm font-semibold">Logcut</span>
-          <span className="text-xs text-muted-foreground">AI subtitles</span>
+          <span className="text-sm font-semibold">LogCut</span>
+          <span className="text-xs text-muted-foreground">AI video editor</span>
         </div>
       </div>
       <nav className="mt-2 flex flex-col gap-1">

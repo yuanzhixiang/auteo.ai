@@ -1,5 +1,5 @@
 /* ============================================================
-   Logcut Design Tokens — layered architecture
+   LogCut Design Tokens — layered architecture
    Layer 1: primitives — raw numeric scales, no meaning; never
             reference these directly in application code.
    Layer 2: semantic — named by responsibility; application code
@@ -7,7 +7,7 @@
    Layer 3: editor domain — timeline/player/recording components only.
    Rules: see DESIGN.md
 
-   Logcut-specific conventions:
+   LogCut-specific conventions:
    · The product defaults to dark mode; dark values are the brand
      reference. Dark overrides live in styles.css (.dark block).
    · orange is the "happening now" color: playhead / recording /

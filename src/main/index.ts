@@ -13,7 +13,7 @@ function createWindow(): void {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    title: 'Logcut',
+    title: 'LogCut',
     // Matches --ink-page so the window doesn't flash white before the
     // dark renderer paints.
     backgroundColor: '#101214',

@@ -79,7 +79,7 @@
   --sidebar-ring: var(--color-focus-ring);
 }
 
-/* ---- Dark mode (Logcut's default): overrides the semantic/domain
+/* ---- Dark mode (LogCut's default): overrides the semantic/domain
    layer only; shadcn variables follow. Values = brand dark surfaces. ---- */
 .dark {
   color-scheme: dark;

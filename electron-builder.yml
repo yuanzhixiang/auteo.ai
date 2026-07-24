@@ -1,5 +1,5 @@
 appId: ai.logcut.app
-productName: Logcut
+productName: LogCut
 directories:
   output: release
 
